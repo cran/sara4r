@@ -1,0 +1,42 @@
+exportPattern("^[[:alpha:]]+")
+import("RGtk2","raster","rgdal","sp")
+importFrom("RGtk2",
+           "GtkResponseType",
+           "gSignalConnect",
+           "gtkActionGroupNew",
+           "gtkButton",
+           "gtkButtonNewFromStock",
+           "gtkButtonNewWithMnemonic",
+           "gtkEntryNew",
+           "gtkFileChooserDialog",
+           "gtkFileFilter",
+           "gtkFrameNew",
+           "gtkHBoxNew",
+           "gtkHButtonBoxNew",
+           "gtkHSeparatorNew",
+           "gtkLabelNew",
+           "gtkLabelNewWithMnemonic",
+           "gtkMessageDialog",
+           "gtkMessageDialogNew",
+           "gtkTableNew",
+           "gtkUIManagerNew",
+           "gtkVBoxNew",
+           "gtkWidgetDestroy",
+           "gtkWindow",
+           "gtkWindowNew")
+importFrom("raster",
+           "cellStats",
+           "hist",
+           "image",
+           "raster",
+           "ratify",
+           "reclassify",
+           "writeRaster",
+           "plot")
+importFrom("grDevices",
+           "rainbow",
+           "dev.new")
+importFrom("graphics", "legend")
+importFrom("utils",
+           "read.csv",
+           "write.table")

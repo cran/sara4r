@@ -1,0 +1,121 @@
+---
+title: "sara4r Vignette"
+author: "Rafael Hernandez Guzman"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{sara4r Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+- [Introduction](#intro)
+- [How to install](#install)
+- [Data preparation](#data)
+- [References](#ref)
+
+
+
+## Introduction {#intro}
+
+[`sara4r`](http://hydro-geomatic-lab.com/sara4r.html) is an easy way to calculate the rainfall-runoff relation using the Natural Resources Conservation Service - Curve Number method (NRCS-CN method) but includes modifications by Hawkins et al., (2002) about the Initial Abstraction. This graphical user interface follows the programming logic of a previously published software [CN-Idris, Hernández-Guzmán et al., 2011 - CN-Idris: An Idrisi tool for generating curve number maps and estimating direct runoff. Environmental Modelling & Software, 26(12), 1764-1766](https://doi.org/10.1016/j.envsoft.2011.07.006), a raster-based GIS tool that outputs runoff estimates from Land use/land cover and hydrologic soil group maps.
+This package is under development at the Institute about Natural Resources Research (INIRENA) from the Universidad Michoacana de San Nicolás de Hidalgo and represents a collaborative effort between the [Hydro-Geomatic Lab](http://hydro-geomatic-lab.com/) (INIRENA) with the Environmental Management Lab (CIAD, A.C.).
+
+## How to install {#install}
+
+`sara4r` package is a Graphical User Interface developed in RGtk2 and depends on other libraries to run (raster, sp, rgdal). Thus, to make available `sara4r` in the R environment you must install `RGtk2` first, then the `raster`, `sp` and `rgdal` packages.
+
+### First time
+
+The first time you execute our tool, you will be asked to install RGtk+. 
+
+```{r}
+# Load the RGtk2 library
+library(RGtk2)
+
+```
+Just type OK and wait until the program finished.
+
+```{r}
+# Load the following libraries.
+library(raster)
+library(rgdal)
+library(sp)
+library(sara4r)
+```
+
+Finally, to run our software, just type:
+```{r}
+sara4r()
+```
+
+
+## Data preparation {#data}
+As you can see in the Menu - Help, there are the instructions to make all required files to use `sara4r`. If you go to the installed folder (sara4r\extdata), you will find the `HowtoMake_CNindexFile.xlsx` with all the instructions. In overall terms:
+
+    Land use and land cover map should be reclassified as follow:
+    LULC in the first place should be reclassified as 10
+    LULC in second place should be reclassified as 20
+    ... and so on.
+      As an example, Landuse file would be:
+        10 Tropical dry forest
+        20 Agriculture
+        30 Mangrove
+        40 Grassland
+        50 Evergreen forest
+        ...
+        
+  While the Hydrologic Soil Group map should be reclassified as follow:
+    
+    HSG A should be reclassified as 1
+    HSG B should be reclassified as 2
+    HSG C should be reclassified as 3
+    HSG D should be reclassified as 4
+    Thus, GSH map would be:
+        1 A
+        2 B
+        3 C
+        4 D
+
+Finally,
+
+    The logic behind the method is:"
+    Landsoil is produced as the sum of LANDUSE and HSG maps. Thus, the possible values it can take are:"
+      11 = Landuse 1 (reclassified as 10) with HSG A (reclassified as 1)
+      12 = Landuse 1 (reclassified as 10) with HSG B (reclassified as 2)
+      13 = Landuse 1 (reclassified as 10) with HSG C (reclassified as 3)
+      14 = Landuse 1 (reclassified as 10) with HSG D (reclassified as 4)
+      21 = Landuse 2 (reclassified as 20) with HSG A (reclassified as 1)
+      22 = Landuse 2 (reclassified as 20) with HSG B (reclassified as 2)
+      23 = Landuse 2 (reclassified as 20) with HSG C (reclassified as 3)
+      24 = Landuse 2 (reclassified as 20) with HSG D (reclassified as 4)
+      31 = Landuse 3 (reclassified as 30) with HSG A (reclassified as 1)
+      ...
+    Thus, the CN index file would be (csv file):"
+      11,12,CNvalue1
+      12,13,CNvalue2
+      13,14,CNvalue3
+      14,15,CNvalue4
+      21,22,CNvalue5
+      22,23,CNvalue6
+      23,24,CNvalue7
+      24,25,CNvalue8
+      31,32,CNvalue9
+      ...
+      ...
+      ...
+
+
+## References: {#ref}
+
+> [CN-Idris, Hernández-Guzmán et al., 2011 - CN-Idris: An Idrisi tool for generating curve number maps and estimating direct runoff. Environmental Modelling & Software, 26(12), 1764-1766](https://doi.org/10.1016/j.envsoft.2011.07.006)
+
+> [SARA, Hernández-Guzmán and Ruiz-Luna, 2013. SARA – An enhanced curve number-based tool
+for estimating direct runoff. Journal of Hydroinformatics, 15(3), 881-887](https://doi.org/10.2166/hydro.2013.145)
