@@ -10,8 +10,8 @@ sara4r()
 \tabular{ll}{
 Package: \tab sara4r\cr
 Type: \tab Package\cr
-Version: \tab 0.0.7\cr
-Date: \tab 2020-01-14\cr
+Version: \tab 0.0.8\cr
+Date: \tab 2021-03-01\cr
 Depends: \tab R(>= 3.4.0),RGtk2\cr
 Imports: \tab raster,sp,rgdal\cr
 License: \tab GPL (>= 3)\cr
@@ -23,6 +23,8 @@ LazyLoad: \tab yes\cr
 
 [SARA, Hernández-Guzmán and Ruiz-Luna, 2013. SARA – An enhanced curve number-based tool
 for estimating direct runoff. Journal of Hydroinformatics, 15(3), 881-887](https://doi.org/10.2166/hydro.2013.145)
+
+[SARA4R, Hernández-Guzmán et al., 2021. Sara4r – an R graphical user interface (GUI) to estimate watershed surface runoff applying the NRCS – curve number method. Journal of Hydroinformatics, 23(1), 76-87](https://doi.org/10.2166/hydro.2020.087)
 }
 \author{Rafael Hernandez Guzman, Arturo Ruiz Luna\cr
 Maintainer: Rafael Hernandez Guzman<rhernandez.g@gmail.com>

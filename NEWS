@@ -1,0 +1,9 @@
+sara4r 0.0.8
+===========
+o  This version includes several options to calculate CN as well as the possibility to include a precipitation image in the surface runoff calculation.
+o  The paper was published in Journal of Hydroinformatics (2021) 23, 76-87.
+
+
+sara4r 0.0.7
+===========
+o  This is the initial version of sara4r. The main functions are surface runoff estimation using the NRCS and a modified method.
