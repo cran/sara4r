@@ -30,28 +30,29 @@ This package is under development at the Institute about Natural Resources Resea
 
 ## How to install {#install}
 
-`sara4r` package is a Graphical User Interface developed in RGtk2 and depends on other libraries to run (raster, sp, rgdal). Thus, to make available `sara4r` in the R environment you must install `RGtk2` first, then the `raster`, `sp` and `rgdal` packages.
+`sara4r` package is a Graphical User Interface developed in tcltk and depends on other libraries to run (raster, sp, rgdal). Thus, to make available `sara4r` in the R environment you must install `tcltk2` first, then the `raster`, `sp` and `rgdal` packages.
 
 ### First time
 
-The first time you execute our tool, you will be asked to install RGtk+. 
+First at all, ensure that you have intalled tcltk and tcltk2. 
 
 ```{r}
-# Load the RGtk2 library
-library(RGtk2)
+# Load the tcltk package
+library(tcltk)
 
 ```
-Just type OK and wait until the program finished.
+Load required packages.
 
 ```{r}
-# Load the following libraries.
+# Load the following packages.
+library(tcltk2)
 library(raster)
 library(rgdal)
 library(sp)
 library(sara4r)
 ```
 
-Finally, to run our software, just type:
+Finally, to run our package, just type:
 ```{r}
 sara4r()
 ```
@@ -119,3 +120,5 @@ Finally,
 
 > [SARA, Hernández-Guzmán and Ruiz-Luna, 2013. SARA – An enhanced curve number-based tool
 for estimating direct runoff. Journal of Hydroinformatics, 15(3), 881-887](https://doi.org/10.2166/hydro.2013.145)
+
+> [sara4r, Hernández-Guzmán et al., 2021. Sara4r: an R graphical user interface (GUI) to estimate watershed surface runoff applying the NRCS – curve number method. Journal of Hydroinformatics, 23(1), 76-87](https://doi.org/10.2166/hydro.2020.087)

@@ -10,9 +10,9 @@ sara4r()
 \tabular{ll}{
 Package: \tab sara4r\cr
 Type: \tab Package\cr
-Version: \tab 0.0.8\cr
-Date: \tab 2021-03-01\cr
-Depends: \tab R(>= 3.4.0),RGtk2\cr
+Version: \tab 0.0.9\cr
+Date: \tab 2022-01-31\cr
+Depends: \tab R(>= 4.1.2), tcltk, tcltk2\cr
 Imports: \tab raster,sp,rgdal\cr
 License: \tab GPL (>= 3)\cr
 LazyLoad: \tab yes\cr

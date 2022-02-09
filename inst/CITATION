@@ -8,9 +8,9 @@ citEntry(entry	= "Article",
   journal	= "Journal of Hydroinformatics",
   year 		= "2021",
   volume	= "23",
-  number	= "12",
+  number	= "1",
   pages		= "76-87",
 
-  textVersion	= 
+  textVersion	=
   paste("Hernández-Guzmán, R., Ruiz-Luna, A., and E. Mendoza (2021). Sara4r: an R graphical user interface (GUI) to estimate watershed surface runoff applying the NRCS – curve number method. Journal of Hydroinformatics.")
 )

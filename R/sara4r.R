@@ -1,5292 +1,1603 @@
-
-sara4r <- function() {
-
-
-veirusGUI <- function(action, INIRENA){
-    about <- gtkWindow()
-    about["title"] <- "sar4r v0.0.8"
-
-    frame <- gtkFrameNew("    INFO    ")
-    about$add(frame)
-
-    vbox <- gtkVBoxNew(FALSE, 8)
-    vbox$setBorderWidth(24)
-    frame$add(vbox)
-
-    hbox <- gtkHBoxNew(FALSE, 8)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
-
-    the.buttons <- gtkHButtonBoxNew()
-    the.buttons$setBorderWidth(5)
-    vbox$add(the.buttons)
-    the.buttons$setLayout("spread")
-    the.buttons$setSpacing(20)
-
-    contactButton <- gtkButtonNewWithMnemonic("Contacts and INFO", show = TRUE)
-    gSignalConnect(contactButton, "clicked", contact)
-    the.buttons$packStart(contactButton,fill=F)
-
-    hbox <- gtkHBoxNew(FALSE, 8)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
-
-    the.buttons <- gtkHButtonBoxNew()
-    the.buttons$setBorderWidth(5)
-    vbox$add(the.buttons)
-    the.buttons$setLayout("spread")
-    the.buttons$setSpacing(20)
-
-    licenceButton <- gtkButtonNewWithMnemonic("Licences, Terms and Conditions", show = TRUE)
-    gSignalConnect(licenceButton, "clicked", licence)
-    the.buttons$packStart(licenceButton,fill=F)
-
-}
-
-
-cn_ii <- function(action, window)
-{
-  cnii_win <- gtkWindow()
-  cnii_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition II  ")
-  cnii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN II", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cnii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif and CN_amc_ii.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cnii_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-sobhani_i <- function(action, window)
-{
-  cni_win <- gtkWindow()
-  cni_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition I  ")
-  cni_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Sobhani (1975)</b>")
-  label$setTooltipText("Sobhani (1975). A review of selected small watershed design methods for possible adoption to Iranian conditions. M.S. Thesis, Utah State University, Logan, UT")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNI =   ---------------------------          </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>  2.334 - 0.01334*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN I", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cni <- round((cn/(2.334-(0.01334*cn))))
-                   writeRaster(cni, filename = "./cn_sobhani_i", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cni_rat <- ratify(cni)
-                   cni_rat
-                   cni_rat@data@attributes
-                   cni_types <- cni_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cni_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cni_rat, col=cols, main="Curve numbers AMC I",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cni_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_sobhani_i.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cni_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-hawkins_i <- function(action, window)
-{
-  cni_win <- gtkWindow()
-  cni_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition I  ")
-  cni_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Hawkins et al. (1985)</b>")
-  label$setTooltipText("Hawkins et al. (1985). Runoff probability, storm depth and curve numbers. Journal of Irrigation and Drainage Engineering, 111(4): 330-340")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNI =   ---------------------------          </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>  2.281 - 0.01281*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN I", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cni <- round((cn/(2.281-(0.01281*cn))))
-                   writeRaster(cni, filename = "./cn_hawkins_i", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cni_rat <- ratify(cni)
-                   cni_rat
-                   cni_rat@data@attributes
-                   cni_types <- cni_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cni_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cni_rat, col=cols, main="Curve numbers AMC I",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cni_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_hawkins_i.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cni_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-chow_i <- function(action, window)
+  sara4r <- function() {
+
+  land_var <- tclVar("")
+  hsg_var <- tclVar("")
+  index_var <- tclVar("")
+  cn_var <- tclVar("")
+  cn1_var <- tclVar("")
+  cn3_var <- tclVar("")
+  landsoil_var <- tclVar("")
+  pimage_var <- tclVar("")
+  rainfall_var <- tclVar("2.5")
+  area_var <- tclVar("30")
+
+  veirus_clear <- function(){
+    tclvalue(land_var) <- ""
+    tclvalue(hsg_var) <- ""
+    tclvalue(index_var) <- ""
+    tclvalue(cn_var) <- ""
+    tclvalue(landsoil_var) <- ""
+    tclvalue(pimage_var) <- ""
+
+  }
+
+  landuse <- function()
   {
-cni_win <- gtkWindow()
-cni_win$setTitle ("sara4r v0.0.8")
-
-frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition I  ")
-cni_win$add(frame)
-
-vbox <- gtkVBoxNew(FALSE, 8)
-vbox$setBorderWidth(24)
-frame$add(vbox)
-
-hbox <- gtkHBoxNew(FALSE,8)
-label <- gtkLabelNew()
-label$setMarkup("<b>Chow et al. (1988)</b>")
-label$setTooltipText("Chow et al. (1988). Applied hydrology. McGraw-Hill, New York")
-vbox$packStart(label,FALSE,FALSE,0)
-
-vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>   4.2*CNII</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>CNI =   ---------------------------          </b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>  10 - 0.058*CNII</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-hbox <- gtkHBoxNew(FALSE,8)
-label <- gtkLabelNew()
-label$setMarkup("<b>\n Parameters:</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Landuse:   </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-landuse.entry <- gtkEntryNew()
-landuse.entry$setWidthChars(60)
-landuse.entry$setSensitive(FALSE)
-hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-land.but <- gtkButton("Browse")
-land.but$setTooltipText("Please, browse the Land use and land cover map")
-hbox$packStart(land.but,FALSE,FALSE,0)
-
-gSignalConnect(land.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    landuse.entry$setText(filename)
-
-                                    dev.new()
-                                    veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                    veirus_plot <- raster(veirus_file)
-                                    plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                 fileFilter$addPattern("*.tif")
-                 fileFilter$addPattern("*.TIFF")
-                 fileFilter$addPattern("*.asc")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-hbox <- gtkHBoxNew(FALSE, 8)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>HSG:          </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-hsg.entry <- gtkEntryNew()
-hsg.entry$setWidthChars(60)
-hsg.entry$setSensitive(FALSE)
-hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-hsg.but <- gtkButton("Browse")
-hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-gSignalConnect(hsg.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    hsg.entry$setText(filename)
-
-                                    dev.new()
-                                    veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                    veirus_plot <- raster(veirus_file)
-                                    plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                 fileFilter$addPattern("*.tif")
-                 fileFilter$addPattern("*.TIFF")
-                 fileFilter$addPattern("*.asc")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-hbox <- gtkHBoxNew(FALSE, 8)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Index File:</b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-index.entry <- gtkEntryNew()
-index.entry$setWidthChars(60)
-index.entry$setSensitive(FALSE)
-
-hbox$packStart(index.entry,FALSE,FALSE,0)
-
-index.but <- gtkButton("Browse")
-index.but$setTooltipText("Please, browse the Curve Numbers index file")
-hbox$packStart(index.but,FALSE,FALSE,0)
-
-gSignalConnect(index.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    index.entry$setText(filename)
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Comma-separated values (*.csv)")
-                 fileFilter$addPattern("*.csv")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-the.buttons <- gtkHButtonBoxNew()
-the.buttons$setBorderWidth(5)
-vbox$add(the.buttons)
-the.buttons$setLayout("spread")
-the.buttons$setSpacing(20)
-
-buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN I", show = TRUE)
-buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-gSignalConnect(buttonOK, "clicked",
-               f = function(widget, ...) {
-
-                 if ((landuse.entry$getText())=="") return(invisible(NULL))
-                 if ((hsg.entry$getText())=="") return(invisible(NULL))
-                 if ((index.entry$getText())=="") return(invisible(NULL))
-
-                 landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                 hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                 index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                 land <- raster(landuse_file)
-                 soil <- raster(hsg_file)
-
-                 landsoil <- (land + soil)
-                 dev.new()
-                 plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                 writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                 index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                 cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                 writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                 cni <- round((4.2*cn/(10-(0.058*cn))))
-                 writeRaster(cni, filename = "./cn_chow_i", format="GTiff", overwrite=TRUE)
-
-                 cn_rat <- ratify(cn)
-                 cn_rat
-                 cn_rat@data@attributes
-                 cn_types <- cn_rat@data@attributes[[1]]
-                 cols <- rainbow(nrow(cn_types))
-                 cols[1] <- "darkgreen"
-                 dev.new()
-                 image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                 legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                 cni_rat <- ratify(cni)
-                 cni_rat
-                 cni_rat@data@attributes
-                 cni_types <- cni_rat@data@attributes[[1]]
-                 cols <- rainbow(nrow(cni_types))
-                 cols[1] <- "darkgreen"
-                 dev.new()
-                 image(cni_rat, col=cols, main="Curve numbers AMC I",  xlab="Longitude", ylab="Latitude")
-                 legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                 path <- getwd()
-                 dialog <- gtkMessageDialogNew(cni_win, c("modal", "destroy-with-parent"), "info", "close",
-                                               "Landsoil.tif, CN_amc_ii.tif and CN_Chow_i.tif were stored in\n",
-                                               "the working folder ", path, " ")
-
-                 dialog$formatSecondaryText()
-                 gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-               })
-the.buttons$packStart(buttonOK,fill=F)
-
-buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-buttonClear$setTooltipText("Clic here to clean all data entries")
-
-gSignalConnect(buttonClear, "clicked",
-               f = function(widget, ...) {
-
-                 landuse.entry$setText("")
-                 hsg.entry$setText("")
-                 index.entry$setText("")
-
-               })
-
-the.buttons$packStart(buttonClear,fill=F)
-
-buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-gSignalConnect(buttonCancel, "clicked", cni_win$destroy)
-the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-mishra_i <- function(action, window)
-{
-  cni_win <- gtkWindow()
-  cni_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition I  ")
-  cni_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Mishra et al. (2008)</b>")
-  label$setTooltipText("Mishra et al. (2008). Comparison of AMC-dependent CN-conversion formulae. Water Resources Management, 22(10), 1409-1420. doi:10.1007/s11269-007-9233-5")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNI =   ---------------------------          </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>  2.2754 - 0.012754*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN I", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cni <- round((cn/(2.2754-(0.012754*cn))))
-                   writeRaster(cni, filename = "./cn_mishra_i", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cni_rat <- ratify(cni)
-                   cni_rat
-                   cni_rat@data@attributes
-                   cni_types <- cni_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cni_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cni_rat, col=cols, main="Curve numbers AMC I",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cni_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_mishra_i.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cni_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-sobhani_iii <- function(action, window)
-{
-  cniii_win <- gtkWindow()
-  cniii_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition III  ")
-  cniii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Sobhani (1975)</b>")
-  label$setTooltipText("Sobhani (1975). A review of selected small watershed design methods for possible adoption to Iranian conditions. M.S. Thesis, Utah State University, Logan, UT")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNIII =   ---------------------------          </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>  0.4036 + 0.005964*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN III", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cniii <- round((cn/(0.4036+(0.005964*cn))))
-                   writeRaster(cniii, filename = "./cn_sobhani_iii", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cniii_rat <- ratify(cniii)
-                   cniii_rat
-                   cniii_rat@data@attributes
-                   cniii_types <- cniii_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cniii_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cniii_rat, col=cols, main="Curve numbers AMC III",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cniii_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cniii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_sobhani_iii.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cniii_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-hawkins_iii <- function(action, window)
-{
-  cniii_win <- gtkWindow()
-  cniii_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition III  ")
-  cniii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Hawkins et al. (1985)</b>")
-  label$setTooltipText("Hawkins et al. (1985). Runoff probability, storm depth and curve numbers. Journal of Irrigation and Drainage Engineering, 111(4): 330-340")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNIII =   ---------------------------          </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>  0.427 + 0.00573*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN III", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cniii <- round((cn/(0.427+(0.00573*cn))))
-                   writeRaster(cniii, filename = "./cn_hawkins_iii", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cniii_rat <- ratify(cniii)
-                   cniii_rat
-                   cniii_rat@data@attributes
-                   cniii_types <- cniii_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cniii_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cniii_rat, col=cols, main="Curve numbers AMC III",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cniii_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cniii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_hawkins_iii.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cniii_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-chow_iii <- function(action, window)
-{
-  cniii_win <- gtkWindow()
-  cniii_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition III  ")
-  cniii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Chow et al. (1988)</b>")
-  label$setTooltipText("Chow et al. (1988). Applied hydrology. McGraw-Hill, New York")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   23*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNIII =   ---------------------------          </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>  10 + 0.13*CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN III", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cniii <- round((23*cn/(10+(0.13*cn))))
-                   writeRaster(cniii, filename = "./cn_chow_iii", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cniii_rat <- ratify(cniii)
-                   cniii_rat
-                   cniii_rat@data@attributes
-                   cniii_types <- cniii_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cniii_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cniii_rat, col=cols, main="Curve numbers AMC III",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cniii_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cniii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_chow_iii.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cniii_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-mishra_iii <- function(action, window)
-{
-  cniii_win <- gtkWindow()
-  cniii_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Curve Numbers for the Antecedent Moisture Condition III  ")
-  cniii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Mishra et al. (2008)</b>")
-  label$setTooltipText("Mishra et al. (2008). Comparison of AMC-dependent CN-conversion formulae. Water Resources Management, 22(10), 1409-1420. doi:10.1007/s11269-007-9233-5")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>   CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>CNIII =   -----------------------        </b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>       0.430 + 0.0057CNII</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
-
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
-
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate CN III", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cniii <- round((cn/(0.43+(0.0057*cn))))
-                   writeRaster(cniii, filename = "./cn_mishra_iii", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   cniii_rat <- ratify(cniii)
-                   cniii_rat
-                   cniii_rat@data@attributes
-                   cniii_types <- cniii_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cniii_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cniii_rat, col=cols, main="Curve numbers AMC III",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = cniii_types$ID, fill = cols, bty="n", cex = 0.8)
-
-
-                   path <- getwd()
-                   dialog <- gtkMessageDialogNew(cniii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Landsoil.tif, CN_amc_ii.tif and CN_mishra_iii.tif were stored in\n",
-                                                 "the working folder ", path, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-                 })
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", cniii_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-qvol_ii <- function(action, window)
-{
-  qvolii_win <- gtkWindow()
-  qvolii_win$setTitle ("sara4r v0.0.8")
-
-
-  frame <- gtkFrameNew("  Get Q-depth and Runoff Volume for the AMC II  ")
-  qvolii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Curve Numbers AMC II:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  cn.entry <- gtkEntryNew()
-  cn.entry$setWidthChars(60)
-  cn.entry$setSensitive(FALSE)
-  hbox$packStart(cn.entry,FALSE,FALSE,0)
-
-  cn.but <- gtkButton("Browse")
-  cn.but$setTooltipText("Please, browse the Curve Number map according the AMC selected")
-  hbox$packStart(cn.but,FALSE,FALSE,0)
-
-  gSignalConnect(cn.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Curve Number map for AMC II",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      cn.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Curve Numbers AMC II", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landsoil map:                   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landsoil.entry <- gtkEntryNew()
-  landsoil.entry$setWidthChars(60)
-  landsoil.entry$setSensitive(FALSE)
-
-  hbox$packStart(landsoil.entry,FALSE,FALSE,0)
-
-  landsoil.but <- gtkButton("Browse")
-  landsoil.but$setTooltipText("Please, browse the Landsoil map created in the previous step")
-  hbox$packStart(landsoil.but,FALSE,FALSE,0)
-
-  gSignalConnect(landsoil.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Landsoil map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landsoil.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Landsoil map", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Precipitation (in):           </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  rainfall.entry <- gtkEntryNew()
-  rainfall.entry$setWidthChars(10)
-  rainfall.entry$setText("2.5")
-  rainfall.entry$setSensitive(TRUE)
-
-  hbox$packStart(rainfall.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Pixel size (meters):        </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  area.entry <- gtkEntryNew()
-  area.entry$setWidthChars(10)
-  area.entry$setText("30")
-  area.entry$setSensitive(TRUE)
-  hbox$packStart(area.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate Q depth and Vol", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((cn.entry$getText())=="") return(invisible(NULL))
-                   if ((landsoil.entry$getText())=="") return(invisible(NULL))
-                   if ((rainfall.entry$getText())=="") return(invisible(NULL))
-                   if ((area.entry$getText())=="") return(invisible(NULL))
-
-                   cn_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                   landsoil_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   cn <- raster(cn_file)
-                   landsoil <- raster(landsoil_file)
-                   P <- as.numeric(rainfall.entry$getText())
-
-                   S <- ((1000/cn) - 10)
-                   Ia <- (0.2*S)
-
-                   msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
-
-                   Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
-
-                   q_depth <- (Q * msc)
-
-                   dev.new()
-                   plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
-
-                   resolution <- as.numeric(area.entry$getText())
-                   area <- (resolution * resolution)
-
-                   runoff <- round((q_depth * 0.0254 * area), 2)
-
-                   runoff_rat <- ratify(runoff)
-                   runoff_rat
-                   runoff_rat@data@attributes
-                   q_types <- runoff_rat@data@attributes [[1]]
-                   cols <- rainbow(nrow(q_types))
-                   cols[1] <- "yellow"
-                   dev.new()
-                   image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   writeRaster(q_depth, filename = "./Q_depth_inch_amcii", format="GTiff", overwrite=TRUE)
-                   writeRaster(runoff, filename = "./Runoff_m3_amcii", format="GTiff", overwrite=TRUE)
-
-                   path <- getwd()
-                   datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                   vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
-
-                   write.table(paste("Total runoff volume for the AMC II = ", vol, "m^3 \n\n The parameters used were::\n Precipitation = ", P, "inches \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
-                               file = paste(path, "/Runoff_Vol_AMCII", datetime, '.txt', sep = ""),
-                               row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-                   dialog <- gtkMessageDialogNew(qvolii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Q_depth_inch and Runoff_m3 were stored in\n",
-                                                 "the working folder ", path, " \n\n",
-                                                 "Total runoff volume for the AMC II is\n",
-                                                 " = ", vol, "m^3")
-
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   cn.entry$setText("")
-                   landsoil.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", qvolii_win$destroy)
-
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-qvol_i <- function(action, window)
-{
-  qvoli_win <- gtkWindow()
-  qvoli_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Q-depth and Runoff Volume for the AMC I  ")
-  qvoli_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Curve Numbers AMC I: </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  cn.entry <- gtkEntryNew()
-  cn.entry$setWidthChars(60)
-  cn.entry$setSensitive(FALSE)
-  hbox$packStart(cn.entry,FALSE,FALSE,0)
-
-  cn.but <- gtkButton("Browse")
-  cn.but$setTooltipText("Please, browse the Curve Number map according the AMC selected")
-  hbox$packStart(cn.but,FALSE,FALSE,0)
-
-  gSignalConnect(cn.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Curve Number map for AMC I",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      cn.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Curve Numbers AMC I", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landsoil map:                  </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landsoil.entry <- gtkEntryNew()
-  landsoil.entry$setWidthChars(60)
-  landsoil.entry$setSensitive(FALSE)
-
-  hbox$packStart(landsoil.entry,FALSE,FALSE,0)
-
-  landsoil.but <- gtkButton("Browse")
-  landsoil.but$setTooltipText("Please, browse the Landsoil map created in the previous step")
-  hbox$packStart(landsoil.but,FALSE,FALSE,0)
-
-  gSignalConnect(landsoil.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Landsoil map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landsoil.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Landsoil map", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Precipitation (in):           </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  rainfall.entry <- gtkEntryNew()
-  rainfall.entry$setWidthChars(10)
-  rainfall.entry$setText("2.5")
-  rainfall.entry$setSensitive(TRUE)
-
-  hbox$packStart(rainfall.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Pixel size (meters):        </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  area.entry <- gtkEntryNew()
-  area.entry$setWidthChars(10)
-  area.entry$setText("30")
-  area.entry$setSensitive(TRUE)
-  hbox$packStart(area.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate Q depth and Vol", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((cn.entry$getText())=="") return(invisible(NULL))
-                   if ((landsoil.entry$getText())=="") return(invisible(NULL))
-                   if ((rainfall.entry$getText())=="") return(invisible(NULL))
-                   if ((area.entry$getText())=="") return(invisible(NULL))
-
-                   cn_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                   landsoil_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   cn <- raster(cn_file)
-                   landsoil <- raster(landsoil_file)
-                   P <- as.numeric(rainfall.entry$getText())
-
-                   S <- ((1000/cn) - 10)
-                   Ia <- (0.2*S)
-
-                   msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
-
-                   Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
-
-                   q_depth <- (Q * msc)
-
-                   dev.new()
-                   plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
-
-                   resolution <- as.numeric(area.entry$getText())
-                   area <- (resolution * resolution)
-
-                   runoff <- round((q_depth * 0.0254 * area), 2)
-
-                   runoff_rat <- ratify(runoff)
-                   runoff_rat
-                   runoff_rat@data@attributes
-                   q_types <- runoff_rat@data@attributes [[1]]
-                   cols <- rainbow(nrow(q_types))
-                   cols[1] <- "yellow"
-                   dev.new()
-                   image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   writeRaster(q_depth, filename = "./Q_depth_inch_amci", format="GTiff", overwrite=TRUE)
-                   writeRaster(runoff, filename = "./Runoff_m3_amci", format="GTiff", overwrite=TRUE)
-
-                   path <- getwd()
-                   datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                   vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
-
-                   write.table(paste("Total runoff volume for the AMC I = ", vol, "m^3 \n\n The parameters used were:\n Precipitation = ", P, "inches \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Pixel size: ", resolution, "meters\n\n sara4r"),
-                               file = paste(path, "/Runoff_Vol_AMCI", datetime, '.txt', sep = ""),
-                               row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-                   dialog <- gtkMessageDialogNew(qvoli_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Q_depth_inch and Runoff_m3 were stored in\n",
-                                                 "the working folder ", path, " \n\n",
-                                                 "Total runoff volume for the AMC I is\n",
-                                                 " = ", vol, "m^3")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   cn.entry$setText("")
-                   landsoil.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", qvoli_win$destroy)
-
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-qvol_iii <- function(action, window)
-{
-  qvoliii_win <- gtkWindow()
-  qvoliii_win$setTitle ("sara4r v0.0.8")
-
-  frame <- gtkFrameNew("  Get Q-depth and Runoff Volume for the AMC III  ")
-  qvoliii_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Curve Numbers AMC III:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  cn.entry <- gtkEntryNew()
-  cn.entry$setWidthChars(60)
-  cn.entry$setSensitive(FALSE)
-
-  hbox$packStart(cn.entry,FALSE,FALSE,0)
-
-  cn.but <- gtkButton("Browse")
-  cn.but$setTooltipText("Please, browse the Curve Number map according the AMC selected")
-  hbox$packStart(cn.but,FALSE,FALSE,0)
-
-  gSignalConnect(cn.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Curve Number map for AMC III",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      cn.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Curve Numbers AMC III", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landsoil map:                    </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landsoil.entry <- gtkEntryNew()
-  landsoil.entry$setWidthChars(60)
-  landsoil.entry$setSensitive(FALSE)
-
-  hbox$packStart(landsoil.entry,FALSE,FALSE,0)
-
-  landsoil.but <- gtkButton("Browse")
-  landsoil.but$setTooltipText("Please, browse the Landsoil map created in the previous step")
-  hbox$packStart(landsoil.but,FALSE,FALSE,0)
-
-  gSignalConnect(landsoil.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Landsoil map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landsoil.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Landsoil map", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Precipitation (in):             </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  rainfall.entry <- gtkEntryNew()
-  rainfall.entry$setWidthChars(10)
-  rainfall.entry$setText("2.5")
-  rainfall.entry$setSensitive(TRUE)
-
-  hbox$packStart(rainfall.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Pixel size (meters):         </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  area.entry <- gtkEntryNew()
-  area.entry$setWidthChars(10)
-  area.entry$setText("30")
-  area.entry$setSensitive(TRUE)
-
-  hbox$packStart(area.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate Q depth and Vol", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((cn.entry$getText())=="") return(invisible(NULL))
-                   if ((landsoil.entry$getText())=="") return(invisible(NULL))
-                   if ((rainfall.entry$getText())=="") return(invisible(NULL))
-                   if ((area.entry$getText())=="") return(invisible(NULL))
-
-                   cn_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                   landsoil_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   cn <- raster(cn_file)
-                   landsoil <- raster(landsoil_file)
-                   P <- as.numeric(rainfall.entry$getText())
-
-                   S <- ((1000/cn) - 10)
-                   Ia <- (0.2*S)
-
-                   msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
-
-                   Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
-
-                   q_depth <- (Q * msc)
-
-                   dev.new()
-                   plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
-
-                   resolution <- as.numeric(area.entry$getText())
-                   area <- (resolution * resolution)
-
-                   runoff <- round((q_depth * 0.0254 * area), 2)
-
-                   runoff_rat <- ratify(runoff)
-                   runoff_rat
-                   runoff_rat@data@attributes
-                   q_types <- runoff_rat@data@attributes [[1]]
-                   cols <- rainbow(nrow(q_types))
-                   cols[1] <- "yellow"
-                   dev.new()
-                   image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   writeRaster(q_depth, filename = "./Q_depth_inch_amciii", format="GTiff", overwrite=TRUE)
-                   writeRaster(runoff, filename = "./Runoff_m3_amciii", format="GTiff", overwrite=TRUE)
-
-                   path <- getwd()
-                   datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                   vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
-
-                   write.table(paste("Total runoff volume for the AMC III = ", vol, "m^3 \n\n The parameters used were:\n Precipitation = ", P, "inches \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Pixel size: ", resolution, "meters\n\n sara4r"),
-                               file = paste(path, "/Runoff_Vol_AMCIII", datetime, '.txt', sep = ""),
-                               row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-                   dialog <- gtkMessageDialogNew(qvoliii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Q_depth_inch and Runoff_m3 were stored in\n",
-                                                 "the working folder ", path, " \n\n",
-                                                 "Total runoff volume for the AMC III is\n",
-                                                 " = ", vol, "m^3")
-
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   cn.entry$setText("")
-                   landsoil.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", qvoliii_win$destroy)
-
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-  cnq_ii <- function(action, window)
+    lulc <- tclvalue(tkgetOpenFile(
+      filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+    if (lulc == "")
+      return(data.frame())
+    tclvalue(land_var) <- lulc
+
+    landuse_plot <- raster(lulc)
+    land_rat <- ratify(landuse_plot)
+    land_rat@data@attributes
+    land_types <- land_rat@data@attributes[[1]]
+    cols <- topo.colors(nrow(land_types))
+
+    dev.new()
+    image(land_rat, col=cols, main="Land use and land cover", xlab="Longitude", ylab="Latitude")
+    legend("bottomleft", legend = land_types$ID, fill = cols, bty="n", cex = 0.8)
+  }
+
+  hsg <- function()
   {
-    cnqii_win <- gtkWindow()
-    cnqii_win$setTitle ("sara4r v0.0.8")
+    soils <- tclvalue(tkgetOpenFile(
+      filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+    if (soils == "")
+      return(data.frame())
+    tclvalue(hsg_var) <- soils
+
+    hsg_plot <- raster(soils)
+    hsg_rat <- ratify(hsg_plot)
+    hsg_rat@data@attributes
+    hsg_types <- hsg_rat@data@attributes[[1]]
+    cols <- rainbow(nrow(hsg_types))
+    cols[1] <- "darkgreen"
+    dev.new()
+    image(hsg_rat, col=cols, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
+    legend("bottomleft", legend = hsg_types$ID, fill = cols, bty="n", cex = 0.8)
+  }
+
+  indexfile <- function()
+  {
+    index <- tclvalue(tkgetOpenFile(
+      filetypes = "{ {Comma delimited files (*.csv)} {.csv} } "))
+    if (index == "")
+      return(data.frame())
+    tclvalue(index_var) <- index
+  }
+
+  curvenumbers <- function()
+  {
+    curvenumber_file <- tclvalue(tkgetOpenFile(
+      filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+    if (curvenumber_file == "")
+      return(data.frame())
+    tclvalue(cn_var)<- curvenumber_file
+
+    cn_plot <- raster(curvenumber_file)
+    cn_rat <- ratify(cn_plot)
+    cn_rat@data@attributes
+    cn_types <- cn_rat@data@attributes[[1]]
+    cols <- rainbow(nrow(cn_types))
+    cols[1] <- "darkgreen"
+    dev.new()
+    image(cn_rat, col=cols, main="Curve number classes", xlab="Longitude", ylab="Latitude")
+
+    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+
+  }
+
+  landsoil <- function()
+  {
+    ls_file <- tclvalue(tkgetOpenFile(
+      filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+    if (ls_file == "")
+      return(data.frame())
+    tclvalue(landsoil_var) <- ls_file
+
+    landsoil_plot <- raster(ls_file)
+
+    landsoil_rat <- ratify(landsoil_plot)
+    landsoil_rat@data@attributes
+    landsoil_types <- landsoil_rat@data@attributes[[1]]
+    cols <- topo.colors(nrow(landsoil_types))
+    dev.new()
+    image(landsoil_rat, col=cols, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
+    legend("bottomleft", legend = landsoil_types$ID, fill = cols, bty="n", cex = 0.8)
+
+  }
+
+  rainfile <- function()
+  {
+    name <- tclvalue(tkgetOpenFile(
+      filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+    if (name == "")
+      return(data.frame())
+    tclvalue(pimage_var) <- name
+
+    rainfall_plot <- raster(name)
+    dev.new()
+    image(rainfall_plot, main= "Precipitation", xlab="Longitude", ylab="Latitude")
+
+  }
+
+  cnii_calc <- function() {
+    landuse_file <- tclvalue(land_var)
+    hsg_file <- tclvalue(hsg_var)
+    index_file <- tclvalue(index_var)
+
+    landuse <- raster(landuse_file)
+    soil <- raster(hsg_file)
+
+    landsoil <- (landuse + soil)
+
+    landsoil_rat <- ratify(landsoil)
+
+    landsoil_rat@data@attributes
+    landsoil_types <- landsoil_rat@data@attributes[[1]]
+    cols <- topo.colors(nrow(landsoil_types))
+    dev.new()
+    image(landsoil_rat, col=cols, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
+    legend("bottomleft", legend = landsoil_types$ID, fill = cols, bty="n", cex = 0.8)
+
+    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
 
-    frame <- gtkFrameNew("  Get CN and Runoff Volume for the Antecedent Moisture Condition II  ")
-    cnqii_win$add(frame)
+    index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
+    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
 
-    vbox <- gtkVBoxNew(FALSE, 8)
-    vbox$setBorderWidth(24)
-    frame$add(vbox)
+    cn_rat <- ratify(cn)
 
-    hbox <- gtkHBoxNew(FALSE,8)
-    label <- gtkLabelNew()
-    label$setMarkup("<b>USDA (1986)</b>")
-    label$setTooltipText("USDA Soil Conservation Service 1986. Urban Hydrology for Small Watersheds. United States Department of Agriculture. Natural Resources Conservation Service. Conservation Engineering Division. Technical Release 55. 2nd edn. Washington, DC, pp. 164.")
-    vbox$packStart(label,FALSE,FALSE,0)
+    cn_rat@data@attributes
+    cn_types <- cn_rat@data@attributes[[1]]
+    cols <- rainbow(nrow(cn_types))
+    cols[1] <- "darkgreen"
+    dev.new()
+    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
 
-    vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
+    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>(P - 0.2*S)^2</b>")
-    vbox$packStart(label,FALSE,FALSE,0)
+    path <- getwd()
+    tkmessageBox(message=paste("landsoil. tif and cn_amc_ii.tif were stored in ", path, ""))
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>Q =             --------------------,   P > 0.2*S</b>")
-    vbox$packStart(label,FALSE,FALSE,0)
+  }
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>(P + 0.8*S)</b>")
-    vbox$packStart(label,FALSE,FALSE,0)
+  qvol_calc <- function()
+  {
+    cn_file <- tclvalue(cn_var)
+    landsoil_file <- tclvalue(landsoil_var)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>\n 1000</b>")
-    vbox$packStart(label,FALSE,FALSE,0)
+    cn <- raster(cn_file)
+    landsoil <- raster(landsoil_file)
+    P <- as.numeric(tclvalue(rainfall_var))
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>S =         ----------  -  10 (in)</b>")
-    vbox$packStart(label,FALSE,FALSE,0)
-
-    label <- gtkLabelNew()
-    label$setMarkup("<b> CN</b>")
-    vbox$packStart(label,FALSE,FALSE,0)
+    S <- ((1000/cn) - 10)
+    Ia <- (0.2*S)
 
-    vbox$packStart(hbox, FALSE, FALSE, 0)
+    msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
 
-    vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
+    Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
 
-    hbox <- gtkHBoxNew(FALSE,8)
-    label <- gtkLabelNew()
-    label$setMarkup("<b>\n Parameters:</b>")
-
-    vbox$packStart(label,FALSE,FALSE,0)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
+    q_depth <- (Q * msc)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>Landuse:   </b>")
-    hbox$packStart(label,FALSE,FALSE,0)
+    dev.new()
+    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
 
-    landuse.entry <- gtkEntryNew()
-    landuse.entry$setWidthChars(60)
-    landuse.entry$setSensitive(FALSE)
+    resolution <- as.numeric(tclvalue(area_var))
+    area <- (resolution * resolution)
 
-    hbox$packStart(landuse.entry,FALSE,FALSE,0)
+    runoff <- round((q_depth * 0.0254 * area), 2)
 
-    land.but <- gtkButton("Browse")
-    land.but$setTooltipText("Please, browse the Land use and land cover map")
-    hbox$packStart(land.but,FALSE,FALSE,0)
+    runoff_rat <- ratify(runoff)
 
-    gSignalConnect(land.but, "clicked",
-                   f = function(widget, ...) {
-                     dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                    parent = NULL, action = "open",
-                                                    "gtk-ok", GtkResponseType["ok"],
-                                                    "gtk-cancel", GtkResponseType["cancel"],
-                                                    show = FALSE)
+    runoff_rat@data@attributes
+    q_types <- runoff_rat@data@attributes [[1]]
+    cols <- rainbow(nrow(q_types))
+    cols[1] <- "yellow"
+    dev.new()
+    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
 
-                     gSignalConnect(dialog, "response",
-                                    f = function(dialog, response, data) {
-                                      if(response == GtkResponseType["ok"]) {
-                                        filename <- dialog$getFilename()
-                                        landuse.entry$setText(filename)
+    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
+    add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(runoff, filename = paste("./Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
 
-                                        dev.new()
-                                        veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                        veirus_plot <- raster(veirus_file)
-                                        plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
+    path <- getwd()
+    datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
 
-                                      }
+    write.table(paste("Total runoff volume of the study area = ", vol, "m^3 \n\n The parameters used were: \n Precipitation = ", P, "inches \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
+                file = paste(path, "/Runoff_Vol", datetime, '.txt', sep = ""),
+                row.names = FALSE, col.names = FALSE, quote = FALSE)
+    tkmessageBox(message=paste("Q_depth_inch and Runoff_m3 were stored in\n",
+                               "the working folder ", path, " \n\n",
+                               "Total runoff volume of the study area = ", vol, "m^3"))
 
-                                      dialog$destroy()
-                                    })
+  }
 
-                     fileFilter <- gtkFileFilter()
-                     fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                     fileFilter$addPattern("*.tif")
-                     fileFilter$addPattern("*.TIFF")
-                     fileFilter$addPattern("*.asc")
-                     dialog$addFilter(fileFilter)
+  usda_calc <- function() {
+    landuse_file <- tclvalue(land_var)
+    hsg_file <- tclvalue(hsg_var)
+    index_file <- tclvalue(index_var)
 
-                     dialog$run()
+    landuse <- raster(landuse_file)
+    soil <- raster(hsg_file)
 
-                   })
+    landsoil <- (landuse + soil)
+    dev.new()
+    image(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
 
-    hbox <- gtkHBoxNew(FALSE, 8)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
+    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>HSG:          </b>")
-    hbox$packStart(label,FALSE,FALSE,0)
+    index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
+    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
 
-    hsg.entry <- gtkEntryNew()
-    hsg.entry$setWidthChars(60)
-    hsg.entry$setSensitive(FALSE)
+    cn_rat <- ratify(cn)
+    cn_rat
+    cn_rat@data@attributes
+    cn_types <- cn_rat@data@attributes[[1]]
+    cols <- rainbow(nrow(cn_types))
+    cols[1] <- "darkgreen"
+    dev.new()
+    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
 
-    hbox$packStart(hsg.entry,FALSE,FALSE,0)
+    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
 
-    hsg.but <- gtkButton("Browse")
-    hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-    hbox$packStart(hsg.but,FALSE,FALSE,0)
+    P <- as.numeric(tclvalue(rainfall_var))
 
-    gSignalConnect(hsg.but, "clicked",
-                   f = function(widget, ...) {
-                     dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                    parent = NULL, action = "open",
-                                                    "gtk-ok", GtkResponseType["ok"],
-                                                    "gtk-cancel", GtkResponseType["cancel"],
-                                                    show = FALSE)
+    S <- ((1000/cn) - 10)
+    Ia <- (0.2*S)
 
-                     gSignalConnect(dialog, "response",
-                                    f = function(dialog, response, data) {
-                                      if(response == GtkResponseType["ok"]) {
-                                        filename <- dialog$getFilename()
-                                        hsg.entry$setText(filename)
+    msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
 
-                                        dev.new()
-                                        veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                        veirus_plot <- raster(veirus_file)
-                                        plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
+    Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
 
-                                      }
+    q_depth <- (Q * msc)
 
-                                      dialog$destroy()
-                                    })
+    dev.new()
+    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
 
-                     fileFilter <- gtkFileFilter()
-                     fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                     fileFilter$addPattern("*.tif")
-                     fileFilter$addPattern("*.TIFF")
-                     fileFilter$addPattern("*.asc")
-                     dialog$addFilter(fileFilter)
+    resolution <- as.numeric(tclvalue(area_var))
+    area <- (resolution * resolution)
 
-                     dialog$run()
+    runoff <- round((q_depth * 0.0254 * area), 2)
 
-                   })
+    runoff_rat <- ratify(runoff)
+    runoff_rat
+    runoff_rat@data@attributes
+    q_types <- runoff_rat@data@attributes [[1]]
+    cols <- rainbow(nrow(q_types))
+    cols[1] <- "yellow"
+    dev.new()
+    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
 
-    hbox <- gtkHBoxNew(FALSE, 8)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
+    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
+    add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(runoff, filename = paste("./USDA_Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>Index File:</b>")
-    hbox$packStart(label,FALSE,FALSE,0)
+    path <- getwd()
+    datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
 
-    index.entry <- gtkEntryNew()
-    index.entry$setWidthChars(60)
-    index.entry$setSensitive(FALSE)
+    write.table(paste("Total runoff volume of the study area = ", vol, "m^3  \n\n The parameters used were: \n Precipitation = ", P, "inches \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
+                file = paste(path, "/Runoff_Vol", datetime, '.txt', sep = ""),
+                row.names = FALSE, col.names = FALSE, quote = FALSE)
+    tkmessageBox(message=paste("Outputs were stored in\n",
+                               "the working folder ", path, " \n\n",
+                               "Total runoff volume of the study area = ", vol, "m^3"))
 
-    hbox$packStart(index.entry,FALSE,FALSE,0)
 
-    index.but <- gtkButton("Browse")
-    index.but$setTooltipText("Please, browse the Curve Numbers index file")
-    hbox$packStart(index.but,FALSE,FALSE,0)
+  }
 
-    gSignalConnect(index.but, "clicked",
-                   f = function(widget, ...) {
-                     dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                    parent = NULL, action = "open",
-                                                    "gtk-ok", GtkResponseType["ok"],
-                                                    "gtk-cancel", GtkResponseType["cancel"],
-                                                    show = FALSE)
+  usdaP_calc <- function() {
+    cn_file <- tclvalue(cn_var)
+    landsoil_file <- tclvalue(landsoil_var)
+    rainfall_file <- tclvalue(pimage_var)
 
-                     gSignalConnect(dialog, "response",
-                                    f = function(dialog, response, data) {
-                                      if(response == GtkResponseType["ok"]) {
-                                        filename <- dialog$getFilename()
-                                        index.entry$setText(filename)
+    cn <- raster(cn_file)
+    landsoil <- raster(landsoil_file)
+    P <- raster(rainfall_file)
 
-                                      }
+    S <- ((1000/cn) - 10)
+    Ia <- (0.2*S)
+    PIa <- (P-Ia)
 
-                                      dialog$destroy()
-                                    })
+    msc <- reclassify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
 
-                     fileFilter <- gtkFileFilter()
-                     fileFilter$setName("Comma-separated values (*.csv)")
-                     fileFilter$addPattern("*.csv")
-                     dialog$addFilter(fileFilter)
+    Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
 
-                     dialog$run()
+    q_depth <- (Q * msc)
 
-                   })
+    dev.new()
+    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
 
-    hbox <- gtkHBoxNew(FALSE, 8)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
+    resolution <- as.numeric(tclvalue(area_var))
+    area <- (resolution * resolution)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>Precipitation (in):           </b>")
-    hbox$packStart(label,FALSE,FALSE,0)
+    runoff <- round((q_depth * 0.0254 * area), 2)
 
-    rainfall.entry <- gtkEntryNew()
-    rainfall.entry$setWidthChars(10)
-    rainfall.entry$setText("2.5")
-    rainfall.entry$setSensitive(TRUE)
+    runoff_rat <- ratify(runoff)
+    runoff_rat
+    runoff_rat@data@attributes
+    q_types <- runoff_rat@data@attributes [[1]]
+    cols <- rainbow(nrow(q_types))
+    cols[1] <- "yellow"
+    dev.new()
+    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
 
-    hbox$packStart(rainfall.entry,FALSE,FALSE,0)
+    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
+    add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(runoff, filename = paste("./Runoff_m3_Pmap",add_time), format="GTiff", overwrite=TRUE)
 
-    hbox <- gtkHBoxNew(FALSE, 8)
-    vbox$packStart(hbox, FALSE, FALSE, 0)
+    path <- getwd()
+    datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
 
-    label <- gtkLabelNew()
-    label$setMarkup("<b>Pixel size (meters):        </b>")
-    hbox$packStart(label,FALSE,FALSE,0)
+    write.table(paste("Total runoff volume of the study area = ", vol, "m^3 \n\n The parameters used were: \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Precipitation = ", rainfall_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
+                file = paste(path, "/Runoff_Vol_Pmap", datetime, '.txt', sep = ""),
+                row.names = FALSE, col.names = FALSE, quote = FALSE)
+    tkmessageBox(message=paste("Q_depth_inch and Runoff_m3_Pmap were stored in\n",
+                               "the working folder ", path, " \n\n",
+                               "Total runoff volume of the study area = ", vol, "m^3"))
 
-    area.entry <- gtkEntryNew()
-    area.entry$setWidthChars(10)
-    area.entry$setText("30")
-    area.entry$setSensitive(TRUE)
+  }
 
-    hbox$packStart(area.entry,FALSE,FALSE,0)
+  hawkins_calc <- function() {
+    landuse_file <- tclvalue(land_var)
+    hsg_file <- tclvalue(hsg_var)
+    index_file <- tclvalue(index_var)
 
-    vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
+    landuse <- raster(landuse_file)
+    soil <- raster(hsg_file)
 
-    the.buttons <- gtkHButtonBoxNew()
-    the.buttons$setBorderWidth(5)
-    vbox$add(the.buttons)
-    the.buttons$setLayout("spread")
-    the.buttons$setSpacing(40)
+    landsoil <- (landuse + soil)
+    dev.new()
+    image(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
 
-    buttonOK <- gtkButtonNewWithMnemonic("_Calculate AMC II", show = TRUE)
-    buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
+    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
 
-    gSignalConnect(buttonOK, "clicked",
-                   f = function(widget, ...) {
+    index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
+    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
 
-                     if ((landuse.entry$getText())=="") return(invisible(NULL))
-                     if ((hsg.entry$getText())=="") return(invisible(NULL))
-                     if ((index.entry$getText())=="") return(invisible(NULL))
-                     if ((rainfall.entry$getText())=="") return(invisible(NULL))
-                     if ((area.entry$getText())=="") return(invisible(NULL))
+    cn_rat <- ratify(cn)
+    cn_rat
+    cn_rat@data@attributes
+    cn_types <- cn_rat@data@attributes[[1]]
+    cols <- rainbow(nrow(cn_types))
+    cols[1] <- "darkgreen"
+    dev.new()
+    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
 
-                     landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                     hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                     index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
+    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
 
-                     land <- raster(landuse_file)
-                     soil <- raster(hsg_file)
+    P <- as.numeric(tclvalue(rainfall_var))
 
-                     landsoil <- (land + soil)
-                     dev.new()
-                     plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-                     writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
+    S <- ((1000/cn) - 10)
+    S05 <- (1.33*(S^1.15))
+    Ia <- (0.05*S05)
 
-                     index <- read.csv(index_file, header = FALSE, sep = ",")
+    msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
 
-                     cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-                     writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
+    Q <- ((P-(0.05*S05))^2)/(P+(0.95*S05))
 
-                     cn_rat <- ratify(cn)
-                     cn_rat
-                     cn_rat@data@attributes
-                     cn_types <- cn_rat@data@attributes[[1]]
-                     cols <- rainbow(nrow(cn_types))
-                     cols[1] <- "darkgreen"
-                     dev.new()
-                     image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-                     legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+    q_depth <- (Q * msc)
 
-                     P <- as.numeric(rainfall.entry$getText())
+    dev.new()
+    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
 
-                     S <- ((1000/cn) - 10)
-                     Ia <- (0.2*S)
+    resolution <- as.numeric(tclvalue(area_var))
+    area <- (resolution * resolution)
 
-                     msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
+    runoff <- round((q_depth * 0.0254 * area), 2)
 
-                     Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
+    runoff_rat <- ratify(runoff)
+    runoff_rat
+    runoff_rat@data@attributes
+    q_types <- runoff_rat@data@attributes [[1]]
+    cols <- rainbow(nrow(q_types))
+    cols[1] <- "yellow"
+    dev.new()
+    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
 
-                     q_depth <- (Q * msc)
+    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
+    add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    writeRaster(q_depth, filename = paste("./Hawkins_Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(runoff, filename = paste("./Hawkins_Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
 
-                     dev.new()
-                     plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
+    path <- getwd()
+    datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
 
-                     resolution <- as.numeric(area.entry$getText())
-                     area <- (resolution * resolution)
+    write.table(paste("Total runoff volume with the modified NRCS-CN method = ", vol, "m^3  \n\n The parameters used were: \n Precipitation = ", P, "inches \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
+                file = paste(path, "/Hawkins_Runoff_Vol", datetime, '.txt', sep = ""),
+                row.names = FALSE, col.names = FALSE, quote = FALSE)
+    tkmessageBox(message=paste("Outputs were stored in\n",
+                               "the working folder ", path, " \n\n",
+                               "Total runoff volume with the modified NRCS-CN method is = ", vol, "m^3"))
 
-                     runoff <- round((q_depth * 0.0254 * area), 2)
+  }
 
-                     runoff_rat <- ratify(runoff)
-                     runoff_rat
-                     runoff_rat@data@attributes
-                     q_types <- runoff_rat@data@attributes [[1]]
-                     cols <- rainbow(nrow(q_types))
-                     cols[1] <- "yellow"
-                     dev.new()
-                     image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                     legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
+  hawkinsP_calc <- function() {
+    landuse_file <- tclvalue(land_var)
+    hsg_file <- tclvalue(hsg_var)
+    index_file <- tclvalue(index_var)
+    rainfall_file <- tclvalue(pimage_var)
 
-                     writeRaster(q_depth, filename = "./Q_depth_inch_amcii", format="GTiff", overwrite=TRUE)
-                     writeRaster(runoff, filename = "./Runoff_m3_amcii", format="GTiff", overwrite=TRUE)
+    landuse <- raster(landuse_file)
+    soil <- raster(hsg_file)
 
-                     path <- getwd()
-                     datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                     vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
+    landsoil <- (landuse + soil)
+    dev.new()
+    image(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
 
-                     write.table(paste("Total runoff volume for the AMC II = ", vol, "m^3 \n\n The parameters used were:\n Precipitation = ", P, "inches \nc Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Pixel size = ", resolution, "meters\n\n sara4r" ),
-                                 file = paste(path, "/Runoff_Vol_AMCII", datetime, '.txt', sep = ""),
-                                 row.names = FALSE, col.names = FALSE, quote = FALSE)
+    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
 
-                     dialog <- gtkMessageDialogNew(cnqii_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                   "All outputs were stored in\n",
-                                                   "the working folder ", path, " \n\n",
-                                                   "Total runoff volume for the AMC II is\n",
-                                                   " = ", vol, "m^3")
+    index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
+    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
 
+    cn_rat <- ratify(cn)
+    cn_rat
+    cn_rat@data@attributes
+    cn_types <- cn_rat@data@attributes[[1]]
+    cols <- rainbow(nrow(cn_types))
+    cols[1] <- "darkgreen"
+    dev.new()
+    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
 
-                     dialog$formatSecondaryText()
-                     gSignalConnect(dialog, "response", gtkWidgetDestroy)
+    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
 
+    P <- raster(rainfall_file)
 
-                   })
+    S <- ((1000/cn) - 10)
+    S05 <- (1.33*(S^1.15))
 
-    the.buttons$packStart(buttonOK,fill=F)
+    Ia <- (0.05*S05)
 
-    buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-    buttonClear$setTooltipText("Clic here to clean all data entries")
+    PIa <- (P-Ia)
 
-    gSignalConnect(buttonClear, "clicked",
-                   f = function(widget, ...) {
 
-                     landuse.entry$setText("")
-                     hsg.entry$setText("")
-                     index.entry$setText("")
+    msc <- reclassify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
 
-                   })
+    Q <- ((P-(0.05*S05))^2)/(P+(0.95*S05))
 
-    the.buttons$packStart(buttonClear,fill=F)
+    q_depth <- (Q * msc)
 
-    buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-    gSignalConnect(buttonCancel, "clicked", cnqii_win$destroy)
+    dev.new()
+    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
 
-    the.buttons$packStart(buttonCancel,fill=F)
+    resolution <- as.numeric(tclvalue(area_var))
+    area <- (resolution * resolution)
 
- }
+    runoff <- round((q_depth * 0.0254 * area), 2)
 
+    runoff_rat <- ratify(runoff)
+    runoff_rat
+    runoff_rat@data@attributes
+    q_types <- runoff_rat@data@attributes [[1]]
+    cols <- rainbow(nrow(q_types))
+    cols[1] <- "yellow"
+    dev.new()
+    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
 
+    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
+    add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    writeRaster(q_depth, filename = paste("./HawkinsP_Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(runoff, filename = paste("./HawkinsP_Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
 
+    path <- getwd()
+    datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
+    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
 
-hawkins <- function(action, window)
-{
-  hawkins_win <- gtkWindow()
-  hawkins_win$setTitle ("sara4r v0.0.8")
+    write.table(paste("Total runoff volume with the modified NRCS-CN method = ", vol, "m^3  \n\n The parameters used were: \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Precipitation = ", P, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
+                file = paste(path, "/HawkinsP_Runoff_Vol", datetime, '.txt', sep = ""),
+                row.names = FALSE, col.names = FALSE, quote = FALSE)
+    tkmessageBox(message=paste("Outputs were stored in\n",
+                               "the working folder ", path, " \n\n",
+                               "Total runoff volume with the modified NRCS-CN method is = ", vol, "m^3"))
 
-  frame <- gtkFrameNew("  Get CN and Runoff volume with the Modified NRCS-CN method  ")
-  hawkins_win$add(frame)
+  }
 
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
+  "about" <- function(show, history)
+  {
+    about_win <- tktoplevel()
+    tkwm.title(about_win, "sara4r v0.0.9")
 
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Hawkins et al. (2002)</b>")
-  label$setTooltipText("Hawkins et al., 2002. Runoff curve number method: Examination of the initial abstraction ratio. In: Proceedings of the Second Federal Interagency Hydrologic Modeling Conference, Las Vegas, Nevada. U.S. Geological Survey, Lakewood, Colorado.")
-  vbox$packStart(label,FALSE,FALSE,0)
+    TFrame <- tkframe(about_win, relief= "groove")
+    tkgrid(tklabel(TFrame,text= "Intentionally written in Spanish", foreground= "blue"))
+    tkgrid(TFrame)
 
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
+    tkgrid(tklabel(about_win, text = "    "))
 
-  label <- gtkLabelNew()
-  label$setMarkup("<b>(P - 0.05*S05)^2</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
+    tkgrid(tklabel(about_win, text = " Con todo mi amor para mi hija, "))
+    tkgrid(tklabel(about_win, text = " la personita que me inspira"))
+    tkgrid(tklabel(about_win, text = "    "))
+    tkgrid(tklabel(about_win, text = " Sara", font= "Times 18", foreground= "blue"))
+    tkgrid(tklabel(about_win, text = "    "))
+    tkgrid(tklabel(about_win, text = " http://hydro-geomatic-lab.com/  "))
+    tkgrid(tklabel(about_win, text = " Veirus Software  "), sticky = "e")
+    tkgrid(tklabel(about_win, text = "    "))
 
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Q =             --------------------,   P > 0.05*S</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
+  }
 
-  label <- gtkLabelNew()
-  label$setMarkup("<b>(P + 0.95*S05)</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
+  "set_work" <- function(show, history)
+  {
+    set_win <- tktoplevel()
+    tkwm.title(set_win, "sara4r v0.0.9 - Set Working Directory")
 
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n S05 = 1.33 * S^1.15  (in)</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
+    dfvar <- tclVar("")
 
-  vbox$packStart(hbox, FALSE, FALSE, 0)
+    TFrame <- tkframe(set_win, relief= "groove")
+    tkgrid(tklabel(TFrame, text= "Set Working Directory", foreground= "blue"))
+    tkgrid(TFrame)
 
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
+    IOFrame <- tkframe(set_win, relief= "groove", borderwidth= 2)
+    v.folder <- tk2entry(IOFrame, width= 50, font= "Times 12", foreground= "blue", textvariable=dfvar, state = c("readonly"))
+    empty.label <- tklabel(IOFrame, width= 2)
+    choose.but <- tk2button(IOFrame, text= " Browse ", default= "active", command = function() browse_folder())
+    tkgrid(tklabel(IOFrame,text= "Input folder name: ", foreground= "blue"), v.folder, empty.label, choose.but, sticky= "w")
+    tkgrid(IOFrame)
 
-  hbox <- gtkHBoxNew(FALSE,8)
+    reset <- function()
+    {
+      tclvalue(dfvar) <- ""
+    }
 
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n Parameters:</b>")
+    browse_folder <- function()
+    {
+      setwd('~')
 
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
+      foldername <- tclvalue(tkchooseDirectory())
+      if (!nchar(foldername)) {
+        tclvalue(dfvar) <- ""
+      } else {
+        tclvalue(dfvar) <- foldername
+      }
+
+    }
 
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landuse:   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
+    set_folder <- function()
+    {
+      folder <- tk2entry(set_win, textvariable=dfvar)
+      setwd(tclvalue(dfvar))
+      tkmessageBox(message = paste( "The selected folder was ", tclvalue(dfvar)))
+      tkdestroy(set_win)
+    }
 
-  landuse.entry <- gtkEntryNew()
-  landuse.entry$setWidthChars(60)
-  landuse.entry$setSensitive(FALSE)
+    RFrame <- tkframe(set_win, relief= "groove")
+    tkgrid(tklabel(RFrame, text = "    "))
+    reset.but <- tk2button(RFrame, text= "  Clear  ", command= reset)
+    submit.but <- tk2button(RFrame, text= "  Submit  ", command = function() set_folder())
+    cancel.but <- tk2button(RFrame, text= "  Dismiss  ", command = function()  tkdestroy(set_win))
+    tkgrid(reset.but, submit.but, cancel.but, ipadx= 20)
+    tkgrid(tklabel(RFrame, text = "    "))
+    tkgrid(RFrame)
 
-  hbox$packStart(landuse.entry,FALSE,FALSE,0)
+  }
 
-  land.but <- gtkButton("Browse")
-  land.but$setTooltipText("Please, browse the Land use and land cover map")
-  hbox$packStart(land.but,FALSE,FALSE,0)
 
-  gSignalConnect(land.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
+  "cnii" <- function(show, history)
+  {
 
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landuse.entry$setText(filename)
+    cnii_win <- tktoplevel()
+    tkwm.title(cnii_win, "sara4r v0.0.9 - Get the Curve Number map for the AMC II")
+
+    tclvalue(land_var) <- ""
+    tclvalue(hsg_var) <- ""
+    tclvalue(index_var) <- ""
+
+    ini_Frame <- tkframe(cnii_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text = "    "))
+    tkgrid(tklabel(ini_Frame, text= "   Parameters:   ", foreground="blue"))
+    tkgrid(ini_Frame)
+
+    CNII_Frame <- tkframe(cnii_win, relief= "groove", borderwidth= 2)
+    landuse.entry <- tk2entry(CNII_Frame,
+                              width= 50,
+                              font= "Times 12",
+                              foreground= "blue",
+                              textvariable= land_var,
+                              state = c("readonly"))
+
+    land.btn <- tk2button(CNII_Frame,
+                          tip="Please, select the Land use and land cover map.",
+                          text=" Browse ",
+                          default= "active",
+                          command=function() landuse())
+
+    hsg.entry <- tk2entry(CNII_Frame,
+                          width=50,
+                          font= "Times 12",
+                          foreground= "blue",
+                          textvariable= hsg_var,
+                          state = c("readonly"))
+
+    hsg.btn <- tk2button(CNII_Frame,
+                         tip="Please, select the Hydrologic Soil Group map.",
+                         text=" Browse ",
+                         command=function() hsg())
+
+    index.entry <- tk2entry(CNII_Frame,
+                            width= 50,
+                            font= "Times 12",
+                            foreground= "blue",
+                            textvariable= index_var,
+                            state = c("readonly"))
+
+    index.btn <- tk2button(CNII_Frame,
+                           tip="Please, select the Curve Number index file.",
+                           text=" Browse ",
+                           command=function() indexfile())
+
+    tkgrid(tklabel(CNII_Frame, text = "    "))
+    tkgrid(tklabel(CNII_Frame,text= "Landuse:    ", foreground= "blue"), landuse.entry, land.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(CNII_Frame,text= "HSG:        ", foreground= "blue"), hsg.entry, hsg.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(CNII_Frame,text= "index file: ", foreground= "blue"), index.entry, index.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(CNII_Frame, text = "    "))
+    tkgrid(CNII_Frame)
+
+    btn.cnii_frame <- tkframe(cnii_win, relief= "groove")
+    btn.cnii.calc <- tk2button(btn.cnii_frame,
+                               tip="This process takes a while. Please, wait until the program finished.",
+                               text=" Calculate CN II ",
+                               command=function() cnii_calc())
+    btn.cnii.clear <- tk2button(btn.cnii_frame,
+                               tip="Click here if you want to clear the 'Landuse, HSG and index' data entries.",
+                               text=" Clear ",
+                               command=function() veirus_clear())
+    btn.cnii.cancel <- tk2button(btn.cnii_frame,
+                                text= "  Dismiss  ",
+                                command = function() tkdestroy(cnii_win))
+
+    tkgrid(tklabel(btn.cnii_frame, text = "    "))
+    tkgrid(btn.cnii.calc, btn.cnii.clear, btn.cnii.cancel, ipadx= 20)
+    tkgrid(tklabel(btn.cnii_frame, text = "    "))
+    tkgrid(btn.cnii_frame)
+
+  }
+
+
+  "cni" <- function(show, history)
+  {
+    cni_win <- tktoplevel()
+    tkwm.title(cni_win, "sara4r v0.0.9 - Get the Curve Number map for the AMC I")
+
+    tclvalue(cn1_var)  <- ""
+
+    reset <- function()
+    {
+      tclvalue(cn1_var) <- ""
+    }
+
+    curve_numbers_II <- function()
+    {
+      cnii_file <- tclvalue(tkgetOpenFile(
+        filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+      if (cnii_file == "")
+        return(data.frame())
+      tclvalue(cn1_var)<- cnii_file
+
+      cn_plot <- raster(tclvalue(cn1_var))
+       cn_rat <- ratify(cn_plot)
+       cn_rat
+       cn_rat@data@attributes
+       cn_types <- cn_rat@data@attributes[[1]]
+       cols <- rainbow(nrow(cn_types))
+       cols[1] <- "darkgreen"
+      dev.new()
+      image(cn_rat, col=cols, main="Curve number classes", xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+
+    }
+
+    sob_cni <- function()
+    {
+      cn <- raster(tclvalue(cn1_var))
+
+      cni <- round((cn/(2.334-(0.01334*cn))))
+      writeRaster(cni, filename = "./cn_sobhani_amci", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC I (Sobhani)",  xlab="Longitude", ylab="Latitude")
+
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_sobhani_amci.tif was stored in ", path, ""))
+
+    }
+
+    hwk_cni <- function()
+    {
+      cn <- raster(tclvalue(cn1_var))
+
+      cni <- round((cn/(2.281-(0.01281*cn))))
+      writeRaster(cni, filename = "./cn_hawkins_amci", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC I (Hawkins)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_hawkins_amci.tif was stored in ", path, ""))
+
+    }
+
+    chow_cni <- function()
+    {
+      cn <- raster(tclvalue(cn1_var))
+
+      cni <- round((4.2*cn/(10-(0.058*cn))))
+      writeRaster(cni, filename = "./cn_chow_amci", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC I (Chow)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_chow_amci.tif was stored in ", path, ""))
+
+    }
+
+    mish_cni <- function()
+    {
+
+      cn <- raster(tclvalue(cn1_var))
+
+      cni <- round((cn/(2.2754-(0.012754*cn))))
+      writeRaster(cni, filename = "./cn_mishra_amci", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC I (Mishra)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_mishra_amci.tif was stored in ", path, ""))
+
+    }
+
+    ini_Frame <- tkframe(cni_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text= "Please, select the CN II map", foreground= "blue"))
+    tkgrid(ini_Frame)
+
+    CNI_Frame <- tkframe(cni_win, relief= "groove", borderwidth= 2)
+    cn.entry <- tk2entry(CNI_Frame,
+                         width= 50,
+                         font= "Times 12",
+                         foreground= "blue",
+                         textvariable=cn1_var,
+                         state = c("readonly"))
+
+    cn.btn <- tk2button(CNI_Frame,
+                        tip="Please, select the Curve Number map for the AMC II",
+                        text=" Browse ",
+                        default= "active",
+                        command=function() curve_numbers_II())
+
+    tkgrid(tklabel(CNI_Frame, text= "CN II map: ", foreground= "blue"), cn.entry, cn.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(CNI_Frame)
+
+    method_Frame <- tkframe(cni_win, relief= "groove")
+    tkgrid(tklabel(method_Frame, text = "    "))
+    tkgrid(tklabel(method_Frame, text= "Please, select a method to calculate CN I", foreground= "blue"))
+    tkgrid(method_Frame)
+
+    out_frame <- tkframe(cni_win, relief= "groove")
+    btn.sob <- tk2button(out_frame, text = "  Sobhani 1975  ", command = sob_cni)
+    btn.haw <- tk2button(out_frame, text = "  Hawkins et al 1985  ", command = hwk_cni)
+    btn.cho <- tk2button(out_frame, text = "  Chow et al 1988  ", command = chow_cni)
+    btn.mis <- tk2button(out_frame, text = "  Mishra et al 2008  ", command = mish_cni)
+
+    tkgrid(btn.sob, btn.haw, btn.cho, btn.mis, ipadx= 20)
+    tkgrid(tklabel(out_frame, text = "    "))
+    tkgrid(out_frame)
+
+  }
+
+
+  "cniii" <- function(show, history)
+  {
+    cniii_win <- tktoplevel()
+    tkwm.title(cniii_win, "sara4r v0.0.9 - Get the Curve Number map for the AMC III")
+
+    tclvalue(cn3_var) <- ""
+
+    reset <- function()
+    {
+      tclvalue(cn3_var) <- ""
+    }
+
+
+    curve_numbers_II <- function()
+    {
+      cnii_file <- tclvalue(tkgetOpenFile(
+        filetypes = "{ {TIFF files (*.tif)} {.tif} } { {ASCII files (*.asc)} {.asc} }  { {All files} * }"))
+      if (cnii_file == "")
+        return(data.frame())
+      tclvalue(cn3_var) <- cnii_file
+
+      cn_plot <- raster(tclvalue(cn3_var))
+      cn_rat <- ratify(cn_plot)
+      cn_rat
+      cn_rat@data@attributes
+      cn_types <- cn_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cn_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cn_rat, col=cols, main="Curve number classes", xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+
+    }
+
+    sob_cniii <- function()
+    {
+      cn <- raster(tclvalue(cn3_var))
+
+      cni <- round((cn/(0.4036+(0.005964*cn))))
+      writeRaster(cni, filename = "./cn_sobhani_amciii", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC III (Sobhani)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_sobhani_amciii.tif was stored in ", path, ""))
+
+    }
+
+    hwk_cniii <- function()
+    {
+      cn <- raster(tclvalue(cn3_var))
+
+      cni <- round((cn/(0.427+(0.00573*cn))))
+      writeRaster(cni, filename = "./cn_hawkins_amciii", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC III (Hawkins)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_hawkins_amciii.tif was stored in ", path, ""))
+
+    }
+
+    chow_cniii <- function()
+    {
+      cn <- raster(tclvalue(cn3_var))
+
+      cni <- round((23*cn/(10+(0.13*cn))))
+      writeRaster(cni, filename = "./cn_chow_amciii", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC III (Chow)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()
+      tkmessageBox(message=paste("cn_chow_amciii.tif was stored in ", path, ""))
+
+    }
+
+    mish_cniii <- function()
+    {
+      cn <- raster(tclvalue(cn3_var))
+
+      cni <- round((cn/(0.43+(0.0057*cn))))
+      writeRaster(cni, filename = "./cn_mishra_amciii", format="GTiff", overwrite=TRUE)
+
+      cni_rat <- ratify(cni)
+      cni_rat
+      cni_rat@data@attributes
+      cni_types <- cni_rat@data@attributes[[1]]
+      cols <- rainbow(nrow(cni_types))
+      cols[1] <- "darkgreen"
+      dev.new()
+      image(cni_rat, col=cols, main="Curve numbers AMC III (Mishra)",  xlab="Longitude", ylab="Latitude")
+      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+
+      path <- getwd()  #Get Working Dir
+      tkmessageBox(message=paste("cn_mishra_amciii.tif was stored in ", path, ""))
+
+    }
+
+    ini_Frame <- tkframe(cniii_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text= "Please, select the CN II map", foreground= "blue"))
+    tkgrid(ini_Frame)
+
+    CNIII_Frame <- tkframe(cniii_win, relief= "groove", borderwidth= 2)
+    cn.entry <- tk2entry(CNIII_Frame,
+                         width= 50,
+                         font= "Times 12",
+                         foreground= "blue",
+                         textvariable=cn3_var,
+                         state = c("readonly"))
+
+    cn.btn <- tk2button(CNIII_Frame,
+                        tip="Please, select the Curve Number map for the AMC II",
+                        text=" Browse ",
+                        default= "active",
+                        command=function() curve_numbers_II())
+
+    tkgrid(tklabel(CNIII_Frame, text= "CN II map: ", foreground= "blue"), cn.entry, cn.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(CNIII_Frame)
+
+    method_Frame <- tkframe(cniii_win, relief= "groove")
+    tkgrid(tklabel(method_Frame, text = "    "))
+    tkgrid(tklabel(method_Frame, text= "Please, select a method to calculate CN III", foreground= "blue"))
+    tkgrid(method_Frame)
+
+    out_frame <- tkframe(cniii_win, relief= "groove")
+    btn.sob <- tk2button(out_frame, text = "  Sobhani 1975  ", command = sob_cniii)
+    btn.haw <- tk2button(out_frame, text = "  Hawkins et al 1985  ", command = hwk_cniii)
+    btn.cho <- tk2button(out_frame, text = "  Chow et al 1988  ", command = chow_cniii)
+    btn.mis <- tk2button(out_frame, text = "  Mishra et al 2008  ", command = mish_cniii)
+
+    tkgrid(btn.sob, btn.haw, btn.cho, btn.mis, ipadx= 20)
+    tkgrid(tklabel(out_frame, text = "    "))
+    tkgrid(out_frame)
+
+  }
+
+  "q_volume" <- function(show, history)
+  {
+    qvol_win <- tktoplevel()
+    tkwm.title(qvol_win, "sara4r v0.0.9 - Get Q-depth and runoff volume")
+
+    tclvalue(cn_var) <- ""
+    tclvalue(landsoil_var) <- ""
+
+    ini_Frame <- tkframe(qvol_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text = "    "))
+    tkgrid(tklabel(ini_Frame, text= "   Parameters:   ", foreground="blue"))
+    tkgrid(ini_Frame)
+
+    Q_Frame <- tkframe(qvol_win, relief= "groove", borderwidth= 2)
+
+    cn.entry <- tk2entry(Q_Frame,
+                         width= 50,
+                         font= "Times 12",
+                         foreground= "blue",
+                         textvariable=cn_var,
+                         state = c("readonly"))
+
+    cn.btn <- tk2button(Q_Frame,
+                        tip="Please, select the CN map according to the Antecedent Moisture Condition you want.",
+                        text=" Browse ",
+                        default= "active",
+                        command=function() curvenumbers())
+
+    landsoil.entry <- tk2entry(Q_Frame,
+                               width=50,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= landsoil_var,
+                               state = c("readonly"))
+
+    landsoil.btn <- tk2button(Q_Frame,
+                              tip="Please, select the Landsoil map created in the previous step.",
+                              text=" Browse ",
+                              command=function() landsoil())
+
+    rainfall.entry <- tk2entry(Q_Frame,
+                               tip="Please, provide the precipitation value in inches. Use a dot (.) as a decimal separator instead of a comma.",
+                               width= 10,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= rainfall_var,
+                               justify = c("center"))
+
+    area.entry <- tk2entry(Q_Frame,
+                           tip="Please, provide the pixel size in meters.",
+                           width= 10,
+                           font= "Times 12",
+                           foreground= "blue",
+                           textvariable= area_var,
+                           justify = c("center"))
+
+    tkgrid(tklabel(Q_Frame, text = "    "))
+    tkgrid(tklabel(Q_Frame, text= "Curve numbers:       ", foreground= "blue"), cn.entry, cn.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(Q_Frame, text= "Landsoil:            ", foreground= "blue"), landsoil.entry, landsoil.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(Q_Frame, text= "Precipitation (in):  ", foreground= "blue"), rainfall.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(Q_Frame, text= "Pixel size (m):      ", foreground= "blue"), area.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(Q_Frame, text = "    "))
+    tkgrid(Q_Frame)
+
+    btn.qvol_frame <- tkframe(qvol_win, relief= "groove")
+    qvol_calc.btn <- tk2button(btn.qvol_frame,
+                               tip="This process takes a while. Please, wait until the program finished.",
+                               text=" Calculate ",
+                               command=function() qvol_calc())
+
+    qvol_clear.btn <- tk2button(btn.qvol_frame,
+                                tip="Click here if you want to clear the 'Curve numbers and Landsoil' data entries.",
+                                text=" Clear ",
+                                command=function() veirus_clear())
+
+    qvol_cancel.btn <- tk2button(btn.qvol_frame, text= "  Dismiss  ", command = function() tkdestroy(qvol_win))
+
+    tkgrid(tklabel(btn.qvol_frame, text = "    "))
+    tkgrid(qvol_calc.btn, qvol_clear.btn, qvol_cancel.btn, ipadx= 20)
+    tkgrid(tklabel(btn.qvol_frame, text = "    "))
+    tkgrid(btn.qvol_frame)
+
+  }
+
+  "usda" <- function(show, history)
+  {
+    usda_win <- tktoplevel()
+    tkwm.title(usda_win, "sara4r v0.0.9 - Get CN and Runoff volume for the AMC II")
+
+    tclvalue(land_var) <- ""
+    tclvalue(hsg_var) <- ""
+    tclvalue(index_var) <- ""
+
+    usda_Frame <- tkframe(usda_win, relief= "groove")
+    tkgrid(tklabel(usda_Frame, text = "    "))
+    tkgrid(tklabel(usda_Frame, text= "   USDA (1986)   ", foreground="blue"))
+    tkgrid(tklabel(usda_Frame, text = "    "))
+    tkgrid(usda_Frame)
+
+    usda_formula <- tkframe(usda_win, relief= "groove")
+    tkgrid(tklabel(usda_formula, text = " (P - 0.2*S)^2  ", foreground="blue"))
+    tkgrid(tklabel(usda_formula, text= "     Q =      ------------------,    P > 0.2*S ", foreground="blue"))
+    tkgrid(tklabel(usda_formula, text = " (P + 0.8*S)  ", foreground="blue"))
+    tkgrid(usda_formula)
+
+    s_formula <- tkframe(usda_win, relief= "groove")
+    tkgrid(tklabel(s_formula, text = "   1000  ", foreground="blue"))
+    tkgrid(tklabel(s_formula, text= "   S =       ---------- - 10 (in)  ", foreground="blue"))
+    tkgrid(tklabel(s_formula, text = "   CN  ", foreground="blue"))
+    tkgrid(tklabel(s_formula, text = "    "))
+    tkgrid(s_formula)
+
+
+    ini_Frame <- tkframe(usda_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text= "   Parameters:   ", foreground="blue"))
+    tkgrid(ini_Frame)
+
+    USDA_Frame <- tkframe(usda_win, relief= "groove", borderwidth= 2)
+    usda_landuse.entry <- tk2entry(USDA_Frame,
+                              width= 50,
+                              font= "Times 12",
+                              foreground= "blue",
+                              textvariable=land_var,
+                              state = c("readonly"))
+
+    land.btn <- tk2button(USDA_Frame,
+                          tip="Please, select the Land use and land cover map.",
+                          text=" Browse ",
+                          default= "active",
+                          command=function() landuse())
+
+    usda_hsg.entry <- tk2entry(USDA_Frame,
+                          width= 50,
+                          font= "Times 12",
+                          foreground= "blue",
+                          textvariable= hsg_var,
+                          state = c("readonly"))
+
+    hsg.btn <- tk2button(USDA_Frame,
+                         tip="Please, select the Hydrologic Soil Groups map.",
+                         text=" Browse ",
+                         command=function() hsg())
+
+    usda_index.entry <- tk2entry(USDA_Frame,
+                            width= 50,
+                            font= "Times 12",
+                            foreground= "blue",
+                            textvariable= index_var,
+                            state = c("readonly"))
+
+    index.btn <- tk2button(USDA_Frame,
+                           tip="Please, select the Curve Numbers index file.",
+                           text=" Browse ",
+                           command=function() indexfile())
+
+    rainfall.entry <- tk2entry(USDA_Frame,
+                               tip="Please, insert the precipitation value in inches.",
+                               width= 10,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= rainfall_var,
+                               justify = c("center"))
+
+    area.entry <- tk2entry(USDA_Frame,
+                           tip="Please, insert the pixel size in meters",
+                           width= 10,
+                           font= "Times 12",
+                           foreground= "blue",
+                           textvariable= area_var,
+                           justify = c("center"))
+
+    tkgrid(tklabel(USDA_Frame, text = "    "))
+    tkgrid(tklabel(USDA_Frame ,text= "Landuse:    ", foreground= "blue"), usda_landuse.entry, land.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDA_Frame, text= "HSG:        ", foreground= "blue"), usda_hsg.entry, hsg.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDA_Frame, text= "index file: ", foreground= "blue"), usda_index.entry, index.btn, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDA_Frame, text= "Precipitation (in): ", foreground= "blue"), rainfall.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDA_Frame, text= "Pixel size (m): ",  foreground= "blue"), area.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDA_Frame, text = "    "))
+    tkgrid(USDA_Frame)
+
+    btn.usda_frame <- tkframe(usda_win, relief= "groove")
+    usda_calc.btn <- tk2button(btn.usda_frame,
+                               tip="This process takes a while. Please, wait until the program finished.",
+                               text=" Calculate ",
+                               command=function() usda_calc())
+    usda_clear.btn <- tk2button(btn.usda_frame,
+                                tip="Click here if you want to clear the 'Landuse, HSG and index' data entries.",
+                                text=" Clear ",
+                                command=function() veirus_clear())
+    usda_cancel.btn <- tk2button(btn.usda_frame, text= "  Dismiss  ", command = function() tkdestroy(usda_win))
+
+    tkgrid(tklabel(btn.usda_frame, text = "    "))
+    tkgrid(usda_calc.btn, usda_clear.btn, usda_cancel.btn, ipadx= 20)
+    tkgrid(tklabel(btn.usda_frame, text = "    "))
+    tkgrid(btn.usda_frame)
+
+  }
+
+  "usdaP" <- function(show, history)
+  {
+    usdap_win <- tktoplevel()
+    tkwm.title(usdap_win, "sara4r v0.0.9 - Get CN and Runoff volume using a Precipitation image")
+
+    tclvalue(cn_var) <- ""
+    tclvalue(landsoil_var) <- ""
+    tclvalue(pimage_var) <- ""
+
+    usdap_Frame <- tkframe(usdap_win, relief= "groove")
+    tkgrid(tklabel(usdap_Frame, text = "    "))
+    tkgrid(tklabel(usdap_Frame, text= "   USDA (1986)   ", foreground="blue"))
+    tkgrid(tklabel(usdap_Frame, text = "    "))
+    tkgrid(usdap_Frame)
+
+    usdap_formula <- tkframe(usdap_win, relief= "groove")
+    tkgrid(tklabel(usdap_formula, text = " (P - 0.2*S)^2  ", foreground="blue"))
+    tkgrid(tklabel(usdap_formula, text= "     Q =      ------------------,    P > 0.2*S ", foreground="blue"))
+    tkgrid(tklabel(usdap_formula, text = " (P + 0.8*S)  ", foreground="blue"))
+    tkgrid(usdap_formula)
+
+    s_formula <- tkframe(usdap_win, relief= "groove")
+    tkgrid(tklabel(s_formula, text = "   1000  ", foreground="blue"))
+    tkgrid(tklabel(s_formula, text= "   S =       ---------- - 10 (in)  ", foreground="blue"))
+    tkgrid(tklabel(s_formula, text = "   CN  ", foreground="blue"))
+    tkgrid(tklabel(s_formula, text = "    "))
+    tkgrid(s_formula)
+
+
+    ini_Frame <- tkframe(usdap_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text= "   Parameters:   ", foreground="blue"))
+    tkgrid(ini_Frame)
+
+    USDAP_Frame <- tkframe(usdap_win, relief= "groove", borderwidth= 2)
+    cn.entry <- tk2entry(USDAP_Frame,
+                         width= 50,
+                         font= "Times 12",
+                         foreground= "blue",
+                         textvariable=cn_var,
+                         state = c("readonly"))
+
+    cn.but <- tk2button(USDAP_Frame,
+                        tip="Please, select the Curve Number map.",
+                        text=" Browse ",
+                        default= "active",
+                        command=function() curvenumbers())
+
+    landsoil.entry <- tk2entry(USDAP_Frame,
+                               width= 50,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= landsoil_var,
+                               state = c("readonly"))
+
+    landsoil.but <- tk2button(USDAP_Frame,
+                              tip="Please, select the Landsoil map created in previous steps.",
+                              text=" Browse ",
+                              command=function() landsoil())
+
+    rainfall.entry <- tk2entry(USDAP_Frame,
+                               width= 50,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= pimage_var,
+                               state = c("readonly"))
+
+    rainfall.but <- tk2button(USDAP_Frame,
+                              tip="Please, select the Precipitation map.",
+                              text=" Browse ",
+                              command=function() rainfile())
+
+    area.entry <- tk2entry(USDAP_Frame,
+                           tip="Please, insert the pixel size in meters",
+                           width= 10,
+                           font= "Times 12",
+                           foreground= "blue",
+                           textvariable= area_var,
+                           justify = c("center"))
+
+    tkgrid(tklabel(USDAP_Frame, text = "    "))
+    tkgrid(tklabel(USDAP_Frame, text= "Curve Number Map:      ", foreground= "blue"), cn.entry, cn.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDAP_Frame, text= "Landsoil map:          ", foreground= "blue"), landsoil.entry, landsoil.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDAP_Frame, text= "Precipitation Map (in):", foreground= "blue"), rainfall.entry, rainfall.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDAP_Frame, text= "Pixel size (m):        ",  foreground= "blue"), area.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(USDAP_Frame, text = "    "))
+    tkgrid(USDAP_Frame)
+
+    btn.usdap_frame <- tkframe(usdap_win, relief= "groove")
+    usdap_calc.btn <- tk2button(btn.usdap_frame,
+                                tip="This process takes a while. Please, wait until the program finished.",
+                                text=" Calculate ",
+                                command=function() usdaP_calc())
+    usdap_clear.btn <- tk2button(btn.usdap_frame,
+                                 tip="Click here if you want to clear the 'CN, Landsoil and Precipitation' data entries.",
+                                 text=" Clear ",
+                                 command=function() veirus_clear())
+    usdap_cancel.btn <- tk2button(btn.usdap_frame, text= "  Dismiss  ", command = function() tkdestroy(usdap_win))
+
+    tkgrid(tklabel(btn.usdap_frame, text = "    "))
+    tkgrid(usdap_calc.btn, usdap_clear.btn, usdap_cancel.btn, ipadx= 20)
+    tkgrid(tklabel(btn.usdap_frame, text = "    "))
+    tkgrid(btn.usdap_frame)
+
+  }
+
+
+  "hawkins" <- function(show, history)
+  {
+    hawkins_win <- tktoplevel()
+    tkwm.title(hawkins_win, "sara4r v0.0.9 - Get CN and Runoff volume with the Modified NRCS-CN method")
+
+    tclvalue(land_var) <- ""
+    tclvalue(hsg_var) <- ""
+    tclvalue(index_var) <- ""
+
+    hawk_Frame <- tkframe(hawkins_win, relief= "groove")
+    tkgrid(tklabel(hawk_Frame, text = "    "))
+    tkgrid(tklabel(hawk_Frame, text= "   Hawkins et al. (2002)   ", foreground="blue"))
+    tkgrid(tklabel(hawk_Frame, text = "    "))
+    tkgrid(hawk_Frame)
+
+    hawkins_formula <- tkframe(hawkins_win, relief= "groove")
+    tkgrid(tklabel(hawkins_formula, text = " (P - 0.05*S05)^2  ", foreground="blue"))
+    tkgrid(tklabel(hawkins_formula, text= "     Q =      ------------------,    P > 0.05*S ", foreground="blue"))
+    tkgrid(tklabel(hawkins_formula, text = " (P + 0.95*S05)  ", foreground="blue"))
+    tkgrid(hawkins_formula)
+
+    sh_formula <- tkframe(hawkins_win, relief= "groove")
+    tkgrid(tklabel(sh_formula, text = "    "))
+    tkgrid(tklabel(sh_formula, text= "   S05 = 1.33*S^1.15 (in)  ", foreground="blue"))
+    tkgrid(tklabel(sh_formula, text = "    "))
+    tkgrid(sh_formula)
+
+
+    ini_Frame <- tkframe(hawkins_win, relief= "groove")
+    tkgrid(tklabel(ini_Frame, text= "   Parameters:   ", foreground="blue"))
+    tkgrid(ini_Frame)
+
+    HAWKINS_FRAME <- tkframe(hawkins_win, relief= "groove", borderwidth= 2)
+
+    landuse.entry <- tk2entry(HAWKINS_FRAME,
+                              width= 50,
+                              font= "Times 12",
+                              foreground= "blue",
+                              textvariable=land_var,
+                              state = c("readonly"))
+
+    land.but <- tk2button(HAWKINS_FRAME,
+                          tip="Please, select the Land use and land cover map.",
+                          text=" Browse ",
+                          default= "active",
+                          command=function() landuse())
+
+    hsg.entry <- tk2entry(HAWKINS_FRAME,
+                          width= 50,
+                          font= "Times 12",
+                          foreground= "blue",
+                          textvariable= hsg_var,
+                          state = c("readonly"))
+
+    hsg.but <- tk2button(HAWKINS_FRAME,
+                         tip="Please, select the Hydrologic Soil Groups map.",
+                         text=" Browse ",
+                         command=function() hsg())
+
+    index.entry <- tk2entry(HAWKINS_FRAME,
+                            width= 50,
+                            font= "Times 12",
+                            foreground= "blue",
+                            textvariable= index_var,
+                            state = c("readonly"))
+
+    index.but <- tk2button(HAWKINS_FRAME,
+                           tip="Please, select the Curve Numbers index file.",
+                           text=" Browse ",
+                           command=function() indexfile())
+
+    rainfall.entry <- tk2entry(HAWKINS_FRAME,
+                               tip="Please, insert the precipitation value in inches.",
+                               width= 10,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= rainfall_var,
+                               justify = c("center"))
+
+    area.entry <- tk2entry(HAWKINS_FRAME,
+                           tip="Please, insert the pixel size in meters",
+                           width= 10,
+                           font= "Times 12",
+                           foreground= "blue",
+                           textvariable= area_var,
+                           justify = c("center"))
+
+    tkgrid(tklabel(HAWKINS_FRAME, text = "    "))
+    tkgrid(tklabel(HAWKINS_FRAME, text= "Landuse:    ", foreground= "blue"), landuse.entry, land.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINS_FRAME, text= "HSG:        ", foreground= "blue"), hsg.entry, hsg.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINS_FRAME, text= "index file: ", foreground= "blue"), index.entry, index.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINS_FRAME, text= "Precipitation (in): ", foreground= "blue"), rainfall.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINS_FRAME, text= "Pixel size (m): ",  foreground= "blue"), area.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINS_FRAME, text = "    "))
+    tkgrid(HAWKINS_FRAME)
+
+    btn.haw_frame <- tkframe(hawkins_win, relief= "groove")
+    haw_calc.btn <- tk2button(btn.haw_frame,
+                              tip="This process takes a while. Please, wait until the program finished.",
+                              text=" Calculate ",
+                              command=function() hawkins_calc())
+    haw_clear.btn <- tk2button(btn.haw_frame,
+                               tip="Click here if you want to clear the 'Landuse, HSG and index' data entries.",
+                               text=" Clear ",
+                               command=function() veirus_clear())
+    haw_cancel.btn <- tk2button(btn.haw_frame, text= "  Dismiss  ", command = function() tkdestroy(hawkins_win))
+
+    tkgrid(tklabel(btn.haw_frame, text = "    "))
+    tkgrid(haw_calc.btn, haw_clear.btn, haw_cancel.btn, ipadx= 20)
+    tkgrid(tklabel(btn.haw_frame, text = "    "))
+    tkgrid(btn.haw_frame)
+
+  }
+
+  "hawkinsP" <- function(show, history)
+  {
+    hawkinsp_win <- tktoplevel()
+    tkwm.title(hawkinsp_win, "sara4r v0.0.9 - Get CN and Runoff volume with the Modified NRCS-CN method")
+
+    tclvalue(land_var) <- ""
+    tclvalue(hsg_var) <- ""
+    tclvalue(index_var) <- ""
+    tclvalue(pimage_var) <- ""
+
+    hawkp_Frame <- tkframe(hawkinsp_win, relief= "groove")
+    tkgrid(tklabel(hawkp_Frame, text = "    "))
+    tkgrid(tklabel(hawkp_Frame, text= "   Hawkins et al. (2002)   ", foreground="blue"))
+    tkgrid(tklabel(hawkp_Frame, text = "    "))
+    tkgrid(hawkp_Frame)
+
+    hawkins_formula <- tkframe(hawkinsp_win, relief= "groove")
+    tkgrid(tklabel(hawkins_formula, text = " (P - 0.05*S05)^2  ", foreground="blue"))
+    tkgrid(tklabel(hawkins_formula, text= "     Q =      ------------------,    P > 0.05*S ", foreground="blue"))
+    tkgrid(tklabel(hawkins_formula, text = " (P + 0.95*S05)  ", foreground="blue"))
+    tkgrid(hawkins_formula)
+
+    sh_formula <- tkframe(hawkinsp_win, relief= "groove")
+    tkgrid(tklabel(sh_formula, text = "    "))
+    tkgrid(tklabel(sh_formula, text= "   S05 = 1.33*S^1.15 (in)  ", foreground="blue"))
+    tkgrid(tklabel(sh_formula, text = "    "))
+    tkgrid(sh_formula)
+
+
+    ini_Frame <- tkframe(hawkinsp_win, relief= "groove")
+
+    tkgrid(tklabel(ini_Frame, text= "   Parameters:   ", foreground="blue"))
+    tkgrid(ini_Frame)
+
+    HAWKINSP_FRAME <- tkframe(hawkinsp_win, relief= "groove", borderwidth= 2)
+
+    landuse.entry <- tk2entry(HAWKINSP_FRAME,
+                              width= 50,
+                              font= "Times 12",
+                              foreground= "blue",
+                              textvariable=land_var,
+                              state = c("readonly"))
+
+    land.but <- tk2button(HAWKINSP_FRAME,
+                          tip="Please, select the Land use and land cover map.",
+                          text=" Browse ",
+                          default= "active",
+                          command=function() landuse())
+
+    hsg.entry <- tk2entry(HAWKINSP_FRAME,
+                          width= 50,
+                          font= "Times 12",
+                          foreground= "blue",
+                          textvariable= hsg_var,
+                          state = c("readonly"))
+
+    hsg.but <- tk2button(HAWKINSP_FRAME,
+                         tip="Please, select the Hydrologic Soil Groups map.",
+                         text=" Browse ",
+                         command=function() hsg())
+
+    index.entry <- tk2entry(HAWKINSP_FRAME,
+                            width= 50,
+                            font= "Times 12",
+                            foreground= "blue",
+                            textvariable= index_var,
+                            state = c("readonly"))
+
+    index.but <- tk2button(HAWKINSP_FRAME,
+                           tip="Please, select the Curve Numbers index file.",
+                           text=" Browse ",
+                           command=function() indexfile())
+
+    rainfall.entry <- tk2entry(HAWKINSP_FRAME,
+                               width= 50,
+                               font= "Times 12",
+                               foreground= "blue",
+                               textvariable= pimage_var,
+                               state = c("readonly"))
+
+    rainfall.but <- tk2button(HAWKINSP_FRAME,
+                              tip="Please, select the Precipitation map.",
+                              text=" Browse ",
+                              command=function() rainfile())
+
+    area.entry <- tk2entry(HAWKINSP_FRAME,
+                           tip="Please, insert the pixel size in meters",
+                           width= 10,
+                           font= "Times 12",
+                           foreground= "blue",
+                           textvariable= area_var,
+                           justify = c("center"))
+
+    tkgrid(tklabel(HAWKINSP_FRAME, text = "    "))
+    tkgrid(tklabel(HAWKINSP_FRAME, text= "Landuse:    ", foreground= "blue"), landuse.entry, land.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINSP_FRAME, text= "HSG:        ", foreground= "blue"), hsg.entry, hsg.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINSP_FRAME, text= "index file: ", foreground= "blue"), index.entry, index.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINSP_FRAME, text= "Precipitation Map (in):", foreground= "blue"), rainfall.entry, rainfall.but, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINSP_FRAME, text= "Pixel size (m): ",  foreground= "blue"), area.entry, pady= 5, padx= 10, sticky= "w")
+    tkgrid(tklabel(HAWKINSP_FRAME, text = "    "))
+    tkgrid(HAWKINSP_FRAME)
+
+    btn.hawp_frame <- tkframe(hawkinsp_win, relief= "groove")
+    haw_calc.btn <- tk2button(btn.hawp_frame,
+                              tip="This process takes a while. Please, wait until the program finished.",
+                              text=" Calculate ",
+                              command=function() hawkinsP_calc())
+    haw_clear.btn <- tk2button(btn.hawp_frame,
+                               tip="Click here if you want to clear the 'Landuse, HSG, index and Precipitation' data entries.",
+                               text=" Clear ",
+                               command=function() veirus_clear())
+    haw_cancel.btn <- tk2button(btn.hawp_frame, text= "  Dismiss  ", command = function() tkdestroy(hawkinsp_win))
+
+    tkgrid(tklabel(btn.hawp_frame, text = "    "))
+    tkgrid(haw_calc.btn, haw_clear.btn, haw_cancel.btn, ipadx= 20)
+    tkgrid(tklabel(btn.hawp_frame, text = "    "))
+    tkgrid(btn.hawp_frame)
+
+  }
+
+  runoff_win <- tktoplevel()
+  tktitle(runoff_win) <- "sara4r v0.0.9"
+
+  menu_frame <- tkframe(runoff_win, relief= "groove")
+  btn.dir <- tk2button(menu_frame, text = " Set working dir ",  default = "active", command = set_work)
+  btn.about <- tk2button(menu_frame, text = " About ", command = about)
+  tkgrid(btn.dir, btn.about)
+  tkgrid(menu_frame)
+
+  CNII_Frame <- tkframe(runoff_win, relief= "groove")
+  tkgrid(tklabel(CNII_Frame, text = "    "))
+  tkgrid(tklabel(CNII_Frame, text="   Get curve numbers for the AMC II   ", foreground="blue"))
+  btn.cnii <- tk2button(CNII_Frame,
+                          text = " CN II ",
+                          command = cnii)
+
+  tkgrid(btn.cnii)
+  tkgrid(CNII_Frame)
+
+  XFrame <- tkframe(runoff_win, relief= "groove")
+  tkgrid(tklabel(XFrame, text = "    "))
+  tkgrid(tklabel(XFrame, text= "   Get curve numbers (please select an AMC)   ", foreground="blue"))
+  tkgrid(XFrame)
+
+  cn_frame <- tkframe(runoff_win, relief= "groove", borderwidth= 2)
+
+  btn.amci <- tk2button(cn_frame, text = "  Antecedent Moisture Condition I   ", command = cni)
+  btn.amciii <- tk2button(cn_frame, text = "  Antecedent Moisture Condition III   ", command = cniii)
+
+  tkgrid(tklabel(cn_frame, text = "    "))
+  tkgrid(btn.amci, btn.amciii, ipadx= 20)
+  tkgrid(tklabel(cn_frame, text = "    "))
+  tkgrid(cn_frame)
+
+  YFrame <- tkframe(runoff_win, relief= "groove")
+  tkgrid(tklabel(YFrame, text = "    "))
+  tkgrid(tklabel(YFrame, text="   Get Q-dept and Runoff volume   ", foreground="blue"))
+  btn.runoff <- tk2button(YFrame,
+                          tip="Please, use data generated in the previous step",
+                          text = " Q-depth and Vol ",
+                          command = q_volume)
+
+  tkgrid(btn.runoff)
+  tkgrid(YFrame)
+
+  original_frame <- tkframe(runoff_win, relief= "groove")
+  tkgrid(tklabel(original_frame, text = "    "))
+  tkgrid(tklabel(original_frame, text="   Calculate runoff volume with the original method   ", foreground="blue"))
+  btn.original <- tk2button(original_frame,
+                            text = " USDA 1986 ",
+                            command = usda)
+
+  tkgrid(btn.original)
+  tkgrid(original_frame)
+
+  ZFrame <- tkframe(runoff_win, relief= "groove")
+  tkgrid(tklabel(ZFrame, text = "    "))
+  tkgrid(tklabel(ZFrame, text="   Special cases   ", foreground="blue"))
+  tkgrid(ZFrame)
+
+  misc_frame <- tkframe(runoff_win, relief= "groove", borderwidth= 2)
+
+  Ia_img.btn <- tk2button(misc_frame, text = "  Ia = 0.2 (P image)   ", command = usdaP)
+  Ia_P.btn <- tk2button(misc_frame, text = "  Ia = 0.05*S (P value)   ", command = hawkins)
+  Ia_Pim.btn <- tk2button(misc_frame, text = "  Ia = 0.05*S (P image)   ",  command = hawkinsP)
+
+  tkgrid(tklabel(misc_frame, text = "    "))
+  tkgrid(Ia_img.btn, Ia_P.btn, Ia_Pim.btn, ipadx= 20)
+  tkgrid(tklabel(misc_frame, text = "    "))
+  tkgrid(misc_frame)
+
+
+  ENDFrame <- tkframe(runoff_win, relief= "groove")
+  tkgrid(tklabel(ENDFrame, text = " - O - "))
+  tkgrid(ENDFrame)
+
+  }
 
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>HSG:          </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  hsg.entry <- gtkEntryNew()
-  hsg.entry$setWidthChars(60)
-  hsg.entry$setSensitive(FALSE)
-
-  hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-  hsg.but <- gtkButton("Browse")
-  hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-  hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-  gSignalConnect(hsg.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      hsg.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Index File:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  index.entry <- gtkEntryNew()
-  index.entry$setWidthChars(60)
-  index.entry$setSensitive(FALSE)
-
-  hbox$packStart(index.entry,FALSE,FALSE,0)
-
-  index.but <- gtkButton("Browse")
-  index.but$setTooltipText("Please, browse the Curve Numbers index file")
-  hbox$packStart(index.but,FALSE,FALSE,0)
-
-  gSignalConnect(index.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      index.entry$setText(filename)
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Comma-separated values (*.csv)")
-                   fileFilter$addPattern("*.csv")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Precipitation (in):           </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  rainfall.entry <- gtkEntryNew()
-  rainfall.entry$setWidthChars(10)
-  rainfall.entry$setText("2.5")
-  rainfall.entry$setSensitive(TRUE)
-
-  hbox$packStart(rainfall.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Pixel size (meters):        </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  area.entry <- gtkEntryNew()
-  area.entry$setWidthChars(10)
-  area.entry$setText("30")
-  area.entry$setSensitive(TRUE)
-
-  hbox$packStart(area.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(40)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-                   if ((landuse.entry$getText())=="") return(invisible(NULL))
-                   if ((hsg.entry$getText())=="") return(invisible(NULL))
-                   if ((index.entry$getText())=="") return(invisible(NULL))
-
-                   landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                   hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                   index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-
-                   land <- raster(landuse_file)
-                   soil <- raster(hsg_file)
-
-                   landsoil <- (land + soil)
-                   dev.new()
-                   plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-
-                   writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                   index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                   cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-
-                   writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                   cn_rat <- ratify(cn)
-                   cn_rat
-                   cn_rat@data@attributes
-                   cn_types <- cn_rat@data@attributes[[1]]
-                   cols <- rainbow(nrow(cn_types))
-                   cols[1] <- "darkgreen"
-                   dev.new()
-                   image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-
-                   legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   P <- as.numeric(rainfall.entry$getText())
-
-                   S <- ((1000/cn) - 10)
-                   S05 <- (1.33*(S^1.15))
-                   Ia <- (0.05*S05)
-
-                   msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
-
-                   Q <- ((P-(0.05*S05))^2)/(P+(0.95*S05))
-
-                   q_depth <- (Q * msc)
-
-                   dev.new()
-                   plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
-
-                   resolution <- as.numeric(area.entry$getText())
-                   area <- (resolution * resolution)
-
-                   runoff <- round((q_depth * 0.0254 * area), 2)
-
-                   runoff_rat <- ratify(runoff)
-                   runoff_rat
-                   runoff_rat@data@attributes
-                   q_types <- runoff_rat@data@attributes [[1]]
-                   cols <- rainbow(nrow(q_types))
-                   cols[1] <- "yellow"
-                   dev.new()
-                   image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   writeRaster(q_depth, filename = "./Q_depth_inch_hawkins", format="GTiff", overwrite=TRUE)
-                   writeRaster(runoff, filename = "./Runoff_m3_hawkins", format="GTiff", overwrite=TRUE)
-
-                   path <- getwd()
-                   datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                   vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
-
-                   write.table(paste("Total runoff volume with the modified NRCS-CN method = ", vol, "m^3 \n\n The parameters used were:\n Precipitation: ", P, "inches \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Pixel size: ", resolution, "meters\n\n sara4r"),
-                               file = paste(path, "/Runoff_Vol_hawkins", datetime, '.txt', sep = ""),
-                               row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-                   dialog <- gtkMessageDialogNew(hawkins_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "All outputs were stored in\n",
-                                                 "the working folder ", path, " \n\n",
-                                                 "Total runoff volume with the modified NRCS-CN method is\n",
-                                                 " = ", vol, "m^3")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   landuse.entry$setText("")
-                   hsg.entry$setText("")
-                   index.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", hawkins_win$destroy)
-
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-pspatial <- function(action, window)
-{
-  pspatial_win <- gtkWindow()
-  pspatial_win$setTitle ("sara4r v0.0.8")
-
-
-  frame <- gtkFrameNew("  Get Q-depth and Runoff Volume using a Precipitation image  ")
-  pspatial_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-  label <- gtkLabelNew()
-  label$setMarkup("<b>USDA (1986)</b>")
-  label$setTooltipText("USDA Soil Conservation Service 1986. Urban Hydrology for Small Watersheds. United States Department of Agriculture. Natural Resources Conservation Service. Conservation Engineering Division. Technical Release 55. 2nd edn. Washington, DC, pp. 164.")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>(P - 0.2*S)^2</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Q =             --------------------,   P > 0.2*S</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>(P + 0.8*S)</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>\n 1000</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>S =         ----------  -  10 (in)</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b> CN</b>")
-  vbox$packStart(label,FALSE,FALSE,0)
-
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Curve Number Map:      </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  cn.entry <- gtkEntryNew()
-  cn.entry$setWidthChars(60)
-  cn.entry$setSensitive(FALSE)
-  hbox$packStart(cn.entry,FALSE,FALSE,0)
-
-  cn.but <- gtkButton("Browse")
-  cn.but$setTooltipText("Please, browse the Curve Number map")
-  hbox$packStart(cn.but,FALSE,FALSE,0)
-
-  gSignalConnect(cn.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Curve Number map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      cn.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Curve Numbers", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Landsoil map:                   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  landsoil.entry <- gtkEntryNew()
-  landsoil.entry$setWidthChars(60)
-  landsoil.entry$setSensitive(FALSE)
-
-  hbox$packStart(landsoil.entry,FALSE,FALSE,0)
-
-  landsoil.but <- gtkButton("Browse")
-  landsoil.but$setTooltipText("Please, browse the Landsoil map created in the previous step")
-  hbox$packStart(landsoil.but,FALSE,FALSE,0)
-
-  gSignalConnect(landsoil.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Landsoil map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      landsoil.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Landsoil map", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Precipitation map (in):   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  rainfall.entry <- gtkEntryNew()
-  rainfall.entry$setWidthChars(60)
-  rainfall.entry$setSensitive(FALSE)
-
-  hbox$packStart(rainfall.entry,FALSE,FALSE,0)
-
-  rainfall.but <- gtkButton("Browse")
-  rainfall.but$setTooltipText("Please, browse the Precipitation map")
-  hbox$packStart(rainfall.but,FALSE,FALSE,0)
-
-  gSignalConnect(rainfall.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select the Precipitation map",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      filename <- dialog$getFilename()
-                                      rainfall.entry$setText(filename)
-
-                                      dev.new()
-                                      veirus_file <- normalizePath(path.expand(rainfall.entry$getText()),  winslash = "/", mustWork = NA)
-                                      veirus_plot <- raster(veirus_file)
-                                      plot(veirus_plot, main="Precipitation map", xlab="Longitude", ylab="Latitude")
-
-                                    }
-
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Pixel size (meters):        </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  area.entry <- gtkEntryNew()
-  area.entry$setWidthChars(10)
-  area.entry$setText("30")
-  area.entry$setSensitive(TRUE)
-  hbox$packStart(area.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(20)
-
-  buttonOK <- gtkButtonNewWithMnemonic("_Calculate Q depth and Vol", show = TRUE)
-  buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-
-                   if ((cn.entry$getText())=="") return(invisible(NULL))
-                   if ((landsoil.entry$getText())=="") return(invisible(NULL))
-                   if ((rainfall.entry$getText())=="") return(invisible(NULL))
-                   if ((area.entry$getText())=="") return(invisible(NULL))
-
-                   cn_file <- normalizePath(path.expand(cn.entry$getText()),  winslash = "/", mustWork = NA)
-                   landsoil_file <- normalizePath(path.expand(landsoil.entry$getText()),  winslash = "/", mustWork = NA)
-                   rainfall_file <- normalizePath(path.expand(rainfall.entry$getText()),  winslash = "/", mustWork = NA)
-                   cn <- raster(cn_file)
-                   landsoil <- raster(landsoil_file)
-                   P<- raster(rainfall_file)
-
-                   S <- ((1000/cn) - 10)
-                   Ia <- (0.2*S)
-                   PIa <- (P-Ia)
-
-                   msc <- reclassify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
-
-                   Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
-
-                   q_depth <- (Q * msc)
-
-                   dev.new()
-                   plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
-
-                   resolution <- as.numeric(area.entry$getText())
-                   area <- (resolution * resolution)
-
-                   runoff <- round((q_depth * 0.0254 * area), 2)
-
-                   runoff_rat <- ratify(runoff)
-                   runoff_rat
-                   runoff_rat@data@attributes
-                   q_types <- runoff_rat@data@attributes [[1]]
-                   cols <- rainbow(nrow(q_types))
-                   cols[1] <- "yellow"
-                   dev.new()
-                   image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                   legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                   writeRaster(q_depth, filename = "./Q_depth_inch", format="GTiff", overwrite=TRUE)
-                   writeRaster(runoff, filename = "./Runoff_m3_Pspatial", format="GTiff", overwrite=TRUE)
-
-                   path <- getwd()
-                   datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                   vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
-
-                   write.table(paste("Total runoff volume = ", vol, "m^3 \n\n The parameters used were:\n Curve Number File: ", cn_file, " \n Landsoil File: ", landsoil_file, "\n Precipitation File (in): ", rainfall_file, "\n Pixel size: ", resolution, "meters\n\n sara4r"),
-                               file = paste(path, "/Runoff_Vol_Pspatial", datetime, '.txt', sep = ""),
-                               row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-                   dialog <- gtkMessageDialogNew(pspatial_win, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "Q_depth_inch and Runoff_m3 were stored in\n",
-                                                 "the working folder ", path, " \n\n",
-                                                 "Total runoff volume using a precipitation image is\n",
-                                                 " = ", vol, "m^3")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-  buttonClear$setTooltipText("Clic here to clean all data entries")
-
-  gSignalConnect(buttonClear, "clicked",
-                 f = function(widget, ...) {
-
-                   cn.entry$setText("")
-                   landsoil.entry$setText("")
-                   rainfall.entry$setText("")
-
-                 })
-
-  the.buttons$packStart(buttonClear,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", pspatial_win$destroy)
-
-  the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-hawkinsP <- function(action, window)
-{
-  hawkinsP_win <- gtkWindow()
-hawkinsP_win$setTitle ("sara4r v0.0.8")
-
-frame <- gtkFrameNew("  Get CN and Runoff volume with the Modified NRCS-CN method  ")
-hawkinsP_win$add(frame)
-
-vbox <- gtkVBoxNew(FALSE, 8)
-vbox$setBorderWidth(24)
-frame$add(vbox)
-
-hbox <- gtkHBoxNew(FALSE,8)
-label <- gtkLabelNew()
-label$setMarkup("<b>Hawkins et al. (2002)</b>")
-label$setTooltipText("Hawkins et al., 2002. Runoff curve number method: Examination of the initial abstraction ratio. In: Proceedings of the Second Federal Interagency Hydrologic Modeling Conference, Las Vegas, Nevada. U.S. Geological Survey, Lakewood, Colorado.")
-vbox$packStart(label,FALSE,FALSE,0)
-
-vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>(P - 0.05*S05)^2</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Q =             --------------------,   P > 0.05*S</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>(P + 0.95*S05)</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>\n S05 = 1.33 * S^1.15  (in)</b>")
-vbox$packStart(label,FALSE,FALSE,0)
-
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-hbox <- gtkHBoxNew(FALSE,8)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>\n Parameters:</b>")
-
-vbox$packStart(label,FALSE,FALSE,0)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Landuse:                          </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-landuse.entry <- gtkEntryNew()
-landuse.entry$setWidthChars(60)
-landuse.entry$setSensitive(FALSE)
-
-hbox$packStart(landuse.entry,FALSE,FALSE,0)
-
-land.but <- gtkButton("Browse")
-land.but$setTooltipText("Please, browse the Land use and land cover map")
-hbox$packStart(land.but,FALSE,FALSE,0)
-
-gSignalConnect(land.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the Land use and land cover map",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    landuse.entry$setText(filename)
-
-                                    dev.new()
-                                    veirus_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                                    veirus_plot <- raster(veirus_file)
-                                    plot(veirus_plot, main="Land use and land covers", xlab="Longitude", ylab="Latitude")
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                 fileFilter$addPattern("*.tif")
-                 fileFilter$addPattern("*.TIFF")
-                 fileFilter$addPattern("*.asc")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-hbox <- gtkHBoxNew(FALSE, 8)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>HSG:                                 </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-hsg.entry <- gtkEntryNew()
-hsg.entry$setWidthChars(60)
-hsg.entry$setSensitive(FALSE)
-
-hbox$packStart(hsg.entry,FALSE,FALSE,0)
-
-hsg.but <- gtkButton("Browse")
-hsg.but$setTooltipText("Please, browse the Hydrologic Soil Groups map")
-hbox$packStart(hsg.but,FALSE,FALSE,0)
-
-gSignalConnect(hsg.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the Hydrologic Soil Group map",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    hsg.entry$setText(filename)
-
-                                    dev.new()
-                                    veirus_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                                    veirus_plot <- raster(veirus_file)
-                                    plot(veirus_plot, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                 fileFilter$addPattern("*.tif")
-                 fileFilter$addPattern("*.TIFF")
-                 fileFilter$addPattern("*.asc")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-hbox <- gtkHBoxNew(FALSE, 8)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Index File:                       </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-index.entry <- gtkEntryNew()
-index.entry$setWidthChars(60)
-index.entry$setSensitive(FALSE)
-
-hbox$packStart(index.entry,FALSE,FALSE,0)
-
-index.but <- gtkButton("Browse")
-index.but$setTooltipText("Please, browse the Curve Numbers index file")
-hbox$packStart(index.but,FALSE,FALSE,0)
-
-gSignalConnect(index.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the CN index file",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    index.entry$setText(filename)
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Comma-separated values (*.csv)")
-                 fileFilter$addPattern("*.csv")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-hbox <- gtkHBoxNew(FALSE, 8)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Precipitation map (in): </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-rainfall.entry <- gtkEntryNew()
-rainfall.entry$setWidthChars(60)
-rainfall.entry$setSensitive(FALSE)
-
-hbox$packStart(rainfall.entry,FALSE,FALSE,0)
-
-rainfall.but <- gtkButton("Browse")
-rainfall.but$setTooltipText("Please, browse the Precipitation map")
-hbox$packStart(rainfall.but,FALSE,FALSE,0)
-
-gSignalConnect(rainfall.but, "clicked",
-               f = function(widget, ...) {
-                 dialog <- gtkFileChooserDialog(title = "Select the Precipitation map",
-                                                parent = NULL, action = "open",
-                                                "gtk-ok", GtkResponseType["ok"],
-                                                "gtk-cancel", GtkResponseType["cancel"],
-                                                show = FALSE)
-
-                 gSignalConnect(dialog, "response",
-                                f = function(dialog, response, data) {
-                                  if(response == GtkResponseType["ok"]) {
-                                    filename <- dialog$getFilename()
-                                    rainfall.entry$setText(filename)
-
-                                    dev.new()
-                                    veirus_file <- normalizePath(path.expand(rainfall.entry$getText()),  winslash = "/", mustWork = NA)
-                                    veirus_plot <- raster(veirus_file)
-                                    plot(veirus_plot, main="Precipitation map", xlab="Longitude", ylab="Latitude")
-
-                                  }
-
-                                  dialog$destroy()
-                                })
-
-                 fileFilter <- gtkFileFilter()
-                 fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                 fileFilter$addPattern("*.tif")
-                 fileFilter$addPattern("*.TIFF")
-                 fileFilter$addPattern("*.asc")
-                 dialog$addFilter(fileFilter)
-
-                 dialog$run()
-
-               })
-
-hbox <- gtkHBoxNew(FALSE, 8)
-vbox$packStart(hbox, FALSE, FALSE, 0)
-
-
-label <- gtkLabelNew()
-label$setMarkup("<b>Pixel size (meters):       </b>")
-hbox$packStart(label,FALSE,FALSE,0)
-
-area.entry <- gtkEntryNew()
-area.entry$setWidthChars(10)
-area.entry$setText("30")
-area.entry$setSensitive(TRUE)
-
-hbox$packStart(area.entry,FALSE,FALSE,0)
-
-vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-the.buttons <- gtkHButtonBoxNew()
-the.buttons$setBorderWidth(5)
-vbox$add(the.buttons)
-the.buttons$setLayout("spread")
-the.buttons$setSpacing(40)
-
-buttonOK <- gtkButtonNewWithMnemonic("_Calculate", show = TRUE)
-buttonOK$setTooltipText("This process takes a while. Please, wait until the program finished")
-
-gSignalConnect(buttonOK, "clicked",
-               f = function(widget, ...) {
-                 if ((landuse.entry$getText())=="") return(invisible(NULL))
-                 if ((hsg.entry$getText())=="") return(invisible(NULL))
-                 if ((index.entry$getText())=="") return(invisible(NULL))
-
-                 landuse_file <- normalizePath(path.expand(landuse.entry$getText()),  winslash = "/", mustWork = NA)
-                 hsg_file <- normalizePath(path.expand(hsg.entry$getText()),  winslash = "/", mustWork = NA)
-                 index_file <-  normalizePath(path.expand(index.entry$getText()),  winslash = "/", mustWork = NA)
-                 rainfall_file <- normalizePath(path.expand(rainfall.entry$getText()),  winslash = "/", mustWork = NA)
-
-                 land <- raster(landuse_file)
-                 soil <- raster(hsg_file)
-                 P<- raster(rainfall_file)
-
-                 landsoil <- (land + soil)
-                 dev.new()
-                 plot(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-
-                 writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
-
-                 index <- read.csv(index_file, header = FALSE, sep = ",")
-
-                 cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-
-                 writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
-
-                 cn_rat <- ratify(cn)
-                 cn_rat
-                 cn_rat@data@attributes
-                 cn_types <- cn_rat@data@attributes[[1]]
-                 cols <- rainbow(nrow(cn_types))
-                 cols[1] <- "darkgreen"
-                 dev.new()
-                 image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-
-                 legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-
-                 S <- ((1000/cn) - 10)
-                 S05 <- (1.33*(S^1.15))
-
-                 Ia <- (0.05*S05)
-
-                 PIa <- (P-Ia)
-
-
-                 msc <- reclassify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
-
-                 Q <- ((P-(0.05*S05))^2)/(P+(0.95*S05))
-
-                 q_depth <- (Q * msc)
-
-                 dev.new()
-                 plot(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
-
-                 resolution <- as.numeric(area.entry$getText())
-                 area <- (resolution * resolution)
-
-                 runoff <- round((q_depth * 0.0254 * area), 2)
-
-                 runoff_rat <- ratify(runoff)
-                 runoff_rat
-                 runoff_rat@data@attributes
-                 q_types <- runoff_rat@data@attributes [[1]]
-                 cols <- rainbow(nrow(q_types))
-                 cols[1] <- "yellow"
-                 dev.new()
-                 image(runoff_rat, col=cols, main="Runoff volumen in cubic meters",  xlab="Longitude", ylab="Latitude")
-                 legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
-
-                 writeRaster(q_depth, filename = "./Q_depth_inch_hawkinsP", format="GTiff", overwrite=TRUE)
-                 writeRaster(runoff, filename = "./Runoff_m3_hawkinsP", format="GTiff", overwrite=TRUE)
-
-                 path <- getwd()
-                 datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-                 vol <- cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)
-
-                 write.table(paste("Total runoff volume with the modified NRCS-CN method = ", vol, "m^3 \n\n The parameters used were:\n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Precipitation File (in): ", rainfall_file, "\n Pixel size: ", resolution, "meters\n\n sara4r"),
-                             file = paste(path, "/Runoff_Vol_hawkinsP", datetime, '.txt', sep = ""),
-                             row.names = FALSE, col.names = FALSE, quote = FALSE)
-
-                 dialog <- gtkMessageDialogNew(hawkinsP_win, c("modal", "destroy-with-parent"), "info", "close",
-                                               "All outputs were stored in\n",
-                                               "the working folder ", path, " \n\n",
-                                               "Total runoff volume with the modified NRCS-CN method is\n",
-                                               " = ", vol, "m^3")
-
-                 dialog$formatSecondaryText()
-                 gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-
-               })
-
-the.buttons$packStart(buttonOK,fill=F)
-
-buttonClear <- gtkButtonNewWithMnemonic("Clea_r", show = TRUE)
-buttonClear$setTooltipText("Clic here to clean all data entries")
-
-gSignalConnect(buttonClear, "clicked",
-               f = function(widget, ...) {
-
-                 landuse.entry$setText("")
-                 hsg.entry$setText("")
-                 index.entry$setText("")
-                 rainfall.entry$setText("")
-
-               })
-
-the.buttons$packStart(buttonClear,fill=F)
-
-buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-gSignalConnect(buttonCancel, "clicked", hawkinsP_win$destroy)
-
-the.buttons$packStart(buttonCancel,fill=F)
-
-}
-
-
-
-set <- function(action, INIRENA)
-{
-  setwin <- gtkWindow()
-  setwin$setTitle ( "Set Working Dir" )
-
-  frame <- gtkFrameNew("Specify working folder location...")
-  setwin$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Input Folder Name   </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  folder.entry <- gtkEntryNew()
-  folder.entry$setWidthChars(50)
-  folder.entry$setSensitive(FALSE)
-  hbox$packStart(folder.entry,FALSE,FALSE,0)
-
-  folder.but <- gtkButton("Browse")
-  hbox$packStart(folder.but, FALSE,FALSE,0)
-  gSignalConnect(folder.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select Folder",
-                                                  parent = NULL, action = "select-folder",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      foldername <- dialog$getFilename()
-                                      folder.entry$setText(foldername)
-
-                                    }
-                                    dialog$destroy()
-                                  })
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(40)
-
-  buttonOK <- gtkButtonNewFromStock("gtk-ok")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-                   if ((folder.entry$getText())=="") return(invisible(NULL))
-
-                   folder <- normalizePath(path.expand(folder.entry$getText()),  winslash = "/", mustWork = NA)
-                   setwd(folder)
-
-                   dialog <- gtkMessageDialogNew(setwin, c("modal", "destroy-with-parent"), "info", "close",
-                                                 "The folder selected was\n",
-                                                 " ", folder, " ")
-
-                   dialog$formatSecondaryText()
-                   gSignalConnect(dialog, "response", gtkWidgetDestroy)
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonCancel <- gtkButtonNewFromStock("gtk-close")
-  gSignalConnect(buttonCancel, "clicked", setwin$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-}
-
-display <- function(action, INIRENA)
-{
-  display_win <- gtkWindow()
-  display_win$setTitle ( "Display Image Window" )
-
-  frame <- gtkFrameNew("Specify file location...")
-  display_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Filename    </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  filename <- gtkEntryNew()
-  filename$setWidthChars(60)
-  filename$setSensitive(FALSE)
-  hbox$packStart(filename,FALSE,FALSE,0)
-
-  display.but <- gtkButton("Browse")
-  hbox$packStart(display.but, FALSE,FALSE,0)
-  gSignalConnect(display.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select Image File to Display",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      displayname <- dialog$getFilename()
-                                      filename$setText(displayname)
-
-                                    }
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Main title:  </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  title.entry <- gtkEntryNew()
-  title.entry$setWidthChars(60)
-  title.entry$setText("Image File")
-  hbox$packStart(title.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>X axis title:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  x.entry <- gtkEntryNew()
-  x.entry$setWidthChars(60)
-  x.entry$setText("X Coordinates")
-  hbox$packStart(x.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Y axis title:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  y.entry <- gtkEntryNew()
-  y.entry$setWidthChars(60)
-  y.entry$setText("Y Coordinates")
-  hbox$packStart(y.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(40)
-
-  buttonOK <- gtkButtonNewFromStock("gtk-ok")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-                   if ((filename$getText())=="") return(invisible(NULL))
-                   display <- normalizePath(path.expand(filename$getText()),  winslash = "/", mustWork = NA)
-                   image_title <-  title.entry$getText()
-                   x <- x.entry$getText()
-                   y <- y.entry$getText()
-
-                   displayfile <- raster(display)
-                   dev.new()
-                   plot(displayfile, main=image_title, xlab=x, ylab=y)
-
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonCancel <- gtkButtonNewWithMnemonic("Ca_ncel", show = TRUE)
-  gSignalConnect(buttonCancel, "clicked", display_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-}
-
-histo <- function(action, INIRENA)
-{
-  histo_win <- gtkWindow()
-
-  histo_win$setTitle ( "HISTO - Image Histogram" )
-
-  frame <- gtkFrameNew("Specify data location...")
-  histo_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Filename    </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  filename <- gtkEntryNew()
-  filename$setWidthChars(60)
-  filename$setSensitive(FALSE)
-  hbox$packStart(filename,FALSE,FALSE,0)
-
-  display.but <- gtkButton("Browse")
-  hbox$packStart(display.but, FALSE,FALSE,0)
-  gSignalConnect(display.but, "clicked",
-                 f = function(widget, ...) {
-                   dialog <- gtkFileChooserDialog(title = "Select Image File to Display",
-                                                  parent = NULL, action = "open",
-                                                  "gtk-ok", GtkResponseType["ok"],
-                                                  "gtk-cancel", GtkResponseType["cancel"],
-                                                  show = FALSE)
-
-                   gSignalConnect(dialog, "response",
-                                  f = function(dialog, response, data) {
-                                    if(response == GtkResponseType["ok"]) {
-                                      displayname <- dialog$getFilename()
-                                      filename$setText(displayname)
-
-                                    }
-                                    dialog$destroy()
-                                  })
-
-                   fileFilter <- gtkFileFilter()
-                   fileFilter$setName("Raster files (*.tif, *.TIFF, *.asc)")
-                   fileFilter$addPattern("*.tif")
-                   fileFilter$addPattern("*.TIFF")
-                   fileFilter$addPattern("*.asc")
-                   dialog$addFilter(fileFilter)
-
-                   dialog$run()
-
-                 })
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE,8)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Parameters:</b>")
-
-  vbox$packStart(label,FALSE,FALSE,0)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Number of classes:  </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  class.entry <- gtkEntryNew()
-  class.entry$setWidthChars(5)
-  class.entry$setText("10")
-  hbox$packStart(class.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Main title:  </b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  title.entry <- gtkEntryNew()
-  title.entry$setWidthChars(60)
-  title.entry$setText("Histogram Image File")
-  hbox$packStart(title.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>X axis title:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  x.entry <- gtkEntryNew()
-  x.entry$setWidthChars(60)
-  x.entry$setText("X")
-  hbox$packStart(x.entry,FALSE,FALSE,0)
-
-  hbox <- gtkHBoxNew(FALSE, 8)
-  vbox$packStart(hbox, FALSE, FALSE, 0)
-
-  label <- gtkLabelNew()
-  label$setMarkup("<b>Y axis title:</b>")
-  hbox$packStart(label,FALSE,FALSE,0)
-
-  y.entry <- gtkEntryNew()
-  y.entry$setWidthChars(60)
-  y.entry$setText("Frequency")
-  hbox$packStart(y.entry,FALSE,FALSE,0)
-
-  vbox$packStart(gtkHSeparatorNew(), FALSE, FALSE, 0)
-
-  the.buttons <- gtkHButtonBoxNew()
-  the.buttons$setBorderWidth(5)
-  vbox$add(the.buttons)
-  the.buttons$setLayout("spread")
-  the.buttons$setSpacing(40)
-
-  buttonOK <- gtkButtonNewFromStock("gtk-ok")
-  gSignalConnect(buttonOK, "clicked",
-                 f = function(widget, ...) {
-                   if ((filename$getText())=="") return(invisible(NULL))
-                   histo <- normalizePath(path.expand(filename$getText()),  winslash = "/", mustWork = NA)
-                   classes <- as.numeric(class.entry$getText())
-                   image_title <-  title.entry$getText()
-                   x <- x.entry$getText()
-                   y <- y.entry$getText()
-                   histoimage <- raster(histo)
-
-                   dev.new()
-                   plot<-hist(histoimage,
-                              breaks=classes,
-                              main=image_title,
-                              col="wheat3",
-                              xlab= x,
-                              ylab= y)
-                 })
-
-  the.buttons$packStart(buttonOK,fill=F)
-
-  buttonCancel <- gtkButtonNewFromStock("gtk-close")
-  gSignalConnect(buttonCancel, "clicked", histo_win$destroy)
-  the.buttons$packStart(buttonCancel,fill=F)
-}
-
-landuse <- function(action, INIRENA) {
-  landuse_win <- gtkWindow()
-  landuse_win$setTitle ( "sara4r v0.0.8" )
-
-  frame <- gtkFrameNew(" Preparing the Landuse file ")
-  landuse_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  label1 <- gtkLabelNewWithMnemonic("Land use and land cover map should be reclassified as follow:")
-  label2 <- gtkLabelNewWithMnemonic("LULC in the first place should be reclassified as 10")
-  label3 <- gtkLabelNewWithMnemonic("LULC in second place should be reclassified as 20")
-  label4 <- gtkLabelNewWithMnemonic("... and so on.")
-  label5 <- gtkLabelNewWithMnemonic("\n As an example, Landuse file would be:")
-  label6 <- gtkLabelNewWithMnemonic("10 Tropical dry forest \n20 Agriculture \n30 Mangrove \n40 Grassland \n50 Evergreen forest \n ...")
-
-  vbox$packStart(label1,FALSE,FALSE,0)
-  vbox$packStart(label2,FALSE,FALSE,0)
-  vbox$packStart(label3,FALSE,FALSE,0)
-  vbox$packStart(label4,FALSE,FALSE,0)
-  vbox$packStart(label5,FALSE,FALSE,0)
-  vbox$packStart(label6,FALSE,FALSE,0)
-
-}
-
-hsg <- function(action, INIRENA) {
-  soils_win <- gtkWindow()
-  soils_win$setTitle ( "sara4r v0.0.8" )
-
-  frame <- gtkFrameNew(" Preparing the HSG file ")
-  soils_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  label1 <- gtkLabelNewWithMnemonic("Hydrologic Soil Group map should be reclassified as follow:")
-  label2 <- gtkLabelNewWithMnemonic("HSG A should be reclassified as 1")
-  label3 <- gtkLabelNewWithMnemonic("HSG B should be reclassified as 2")
-  label4 <- gtkLabelNewWithMnemonic("HSG C should be reclassified as 3")
-  label5 <- gtkLabelNewWithMnemonic("HSG D should be reclassified as 4")
-  label6 <- gtkLabelNewWithMnemonic("\n Thus, GSH map would be:")
-  label7 <- gtkLabelNewWithMnemonic("1 A \n2 B \n3 C \n4 D \n\n")
-
-  vbox$packStart(label1,FALSE,FALSE,0)
-  vbox$packStart(label2,FALSE,FALSE,0)
-  vbox$packStart(label3,FALSE,FALSE,0)
-  vbox$packStart(label4,FALSE,FALSE,0)
-  vbox$packStart(label5,FALSE,FALSE,0)
-  vbox$packStart(label6,FALSE,FALSE,0)
-  vbox$packStart(label7,FALSE,FALSE,0)
-
-}
-
-cnindex <- function(action, INIRENA) {
-  index_win <- gtkWindow()
-  index_win$setTitle ( "sara4r v0.0.8" )
-
-  frame <- gtkFrameNew(" Preparing the CN index file ")
-  index_win$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  label1 <- gtkLabelNewWithMnemonic("The logic behind the method is:")
-  label2 <- gtkLabelNewWithMnemonic("Landsoil is produced as the sum of LANDUSE and HSG maps. Thus, the possible values it can take are:")
-  label3 <- gtkLabelNewWithMnemonic("11 = Landuse 1 (reclassified as 10) with HSG A (reclassified as 1) \n12 = Landuse 1 (reclassified as 10) with HSG B (reclassified as 2) \n13 = Landuse 1 (reclassified as 10) with HSG C (reclassified as 3) \n14 = Landuse 1 (reclassified as 10) with HSG D (reclassified as 4)")
-  label4 <- gtkLabelNewWithMnemonic("21 = Landuse 2 (reclassified as 20) with HSG A (reclassified as 1) \n22 = Landuse 2 (reclassified as 20) with HSG B (reclassified as 2) \n23 = Landuse 2 (reclassified as 20) with HSG C (reclassified as 3) \n24 = Landuse 2 (reclassified as 20) with HSG D (reclassified as 4)")
-  label5 <- gtkLabelNewWithMnemonic("31 = Landuse 3 (reclassified as 30) with HSG A (reclassified as 1) \n...")
-  label6 <- gtkLabelNewWithMnemonic("\n Thus, the CN index file would be (csv file):")
-  label7 <- gtkLabelNewWithMnemonic("11,12,CNvalue1 \n12,13,CNvalue2 \n13,14,CNvalue3 \n14,15,CNvalue4 \n21,22,CNvalue5 \n22,23,CNvalue6 \n23,24,CNvalue7 \n24,25,CNvalue8 \n31,32,CNvalue9 \n...\n...\n...")
-
-  vbox$packStart(label1,FALSE,FALSE,0)
-  vbox$packStart(label2,FALSE,FALSE,0)
-  vbox$packStart(label3,FALSE,FALSE,0)
-  vbox$packStart(label4,FALSE,FALSE,0)
-  vbox$packStart(label5,FALSE,FALSE,0)
-  vbox$packStart(label6,FALSE,FALSE,0)
-  vbox$packStart(label7,FALSE,FALSE,0)
-
-}
-
-Quit <- function(...) INIRENA$destroy()
-
-entries <- list(
-  list("FileMenu", NULL, "_File"),
-  list("Dir", "gtk-open", "_Set Working Dir", "<control>N", "Set Working Dir", set),
-  list("Display", "gtk-new", "_Display image", "<control>O", "Open image file", display),
-  list("Histogram", "gtk-justify-fill", "Image _Histogram", "<control>H", "Image Histogram", histo),
-  list("Quit", "gtk-quit", "_Quit", "<control>Q", "Quit", Quit),
-
-  list("AMCI", NULL, "   _AMC I   "),
-  list("CNAMCI", NULL, "Get CN for AMC I"),
-  list("Sobhani_I", NULL, "Sobhani 1975", "", "", sobhani_i),
-  list("Hawkins_I", NULL, "Hawkins et al., 1985", "", "", hawkins_i),
-  list("Chow_I", NULL, "Chow et al., 1988", "", "", chow_i),
-  list("Mishra_I", NULL, "Mishra et al., 2008", "", "", mishra_i),
-  list("QAMCI", NULL, "Get Q-depth and Runoff Volume", "", "SCS", qvol_i),
-
-  list("AMCII", NULL, "   A_MC II   "),
-  list("CNAMCII", NULL, "Get CN for AMC II", "", "", cn_ii),
-  list("QAMCII", NULL, "Get Q-depth and Runoff Volume", "", "",  qvol_ii),
-  list("BothAMCII", NULL, "Get both (CN and Runoff volume)", "", "", cnq_ii),
-
-  list("AMCIII", NULL, "   AM_C III   "),
-  list("CNAMCIII", NULL, "Get CN for AMC III"),
-  list("Sobhani_III", NULL, "Sobhani 1975", "", "", sobhani_iii),
-  list("Hawkins_III", NULL, "Hawkins et al., 1985", "", "", hawkins_iii),
-  list("Chow_III", NULL, "Chow et al., 1988", "", "", chow_iii),
-  list("Mishra_III", NULL, "Mishra et al., 2008", "", "", mishra_iii),
-  list("QAMCIII", NULL, "Get Q-depth and Runoff Volume", "", "", qvol_iii),
-
-  list("MISC", NULL, "   Mi_sc   "),
-  list("IaP", NULL, "Initial Abstraction = 0.2 (P image)", "", "", pspatial),
-  list("Hawkins", NULL, "Initial Abstraction = 0.05 (P value)", "", "", hawkins),
-  list("HawkinsP", NULL, "Initial Abstraction = 0.05 (P image)", "", "", hawkinsP),
-
-  list("HelpMenu", NULL, "_Help"),
-  list("Landuse", NULL, "_Preparing the landuse file", "", "", landuse),
-  list("HSG", NULL, "Preparing the HSG _file", "", "", hsg),
-  list("CNindex", NULL, "Preparing the CN inde_x file", "", "", cnindex),
-  list("About", NULL, "_About", "<control>A", "About", veirusGUI)
-
-)
-
-licence <- function(action, INIRENA) {
-  licencewin <- gtkWindow()
-  licencewin$setTitle ( "sara4r v0.0.8" )
-
-  frame <- gtkFrameNew("Licence Information Window")
-  licencewin$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  label1 <- gtkLabelNewWithMnemonic("SARA Software is released under the GPL license.")
-  label2 <- gtkLabelNewWithMnemonic("SARA software is provided AS IS and WITH ALL FAULTS, WITHOUT WARRANTY of any kind.")
-  label3 <- gtkLabelNewWithMnemonic("The Authors make NO WARRANTY that SARA Software is free of defects or")
-  label4 <- gtkLabelNewWithMnemonic("is suitable for any particular purpose.")
-  label5 <- gtkLabelNewWithMnemonic("In NO EVENT shall the Authors be responsible for loss or damages arising")
-  label6 <- gtkLabelNewWithMnemonic("from the installation or use of the SARA Software.")
-
-  vbox$packStart(label1,FALSE,FALSE,0)
-  vbox$packStart(label2,FALSE,FALSE,0)
-  vbox$packStart(label3,FALSE,FALSE,0)
-  vbox$packStart(label4,FALSE,FALSE,0)
-  vbox$packStart(label5,FALSE,FALSE,0)
-  vbox$packStart(label6,FALSE,FALSE,0)
-
-}
-
-contact <- function(action, INIRENA) {
-  contactwin <- gtkWindow()
-  contactwin$setTitle ( "sara4r v0.0.8" )
-
-  frame <- gtkFrameNew("Contact Information Window")
-  contactwin$add(frame)
-
-  vbox <- gtkVBoxNew(FALSE, 8)
-  vbox$setBorderWidth(24)
-  frame$add(vbox)
-
-  label1 <- gtkLabelNewWithMnemonic("Please, contact rhernandez.g@mail.com")
-  label2 <- gtkLabelNewWithMnemonic("for any questions, feedback or to report bugs about SARA Software.")
-  label3 <- gtkLabelNewWithMnemonic("sara4r v0.0.8 has been founded by Catedras CONACYT Project No. 148 Granted to INIRENA-UMSNH")
-  label4 <- gtkLabelNewWithMnemonic("sara4r v0.0.8 has been developed by Rafael Hernandez Guzman.")
-  label5 <- gtkLabelNew()
-  label5$setMarkup("<b>\n http://hydro-geomatic-lab.com/</b>")
-  vbox$packStart(label1,FALSE,FALSE,0)
-  vbox$packStart(label2,FALSE,FALSE,0)
-  vbox$packStart(label3,FALSE,FALSE,0)
-  vbox$packStart(label4,FALSE,FALSE,0)
-  vbox$packStart(label5,FALSE,FALSE,0)
-}
-
-INIRENA <- gtkWindowNew("toplevel", show = FALSE)
-INIRENA$setTitle("sara4r v0.0.8")
-INIRENA$setDefaultSize(400,40)
-INIRENA$showAll()
-
-gSignalConnect(INIRENA, "delete-event", function(event, ...) {
-  dialog <- gtkMessageDialog(parent = INIRENA, flags = 0,
-                             type = "question",
-                             buttons = "yes-no",
-                             "Are you sure you want to quit?")
-  out <- dialog$run()
-  dialog$destroy()
-
-  out != GtkResponseType["yes"]
-})
-
-table <- gtkTableNew(1, 5, FALSE)
-INIRENA$add(table)
-
-agroup <- gtkActionGroupNew("AppWindowActions")
-
-agroup$addActions(entries, INIRENA)
-
-manager <- gtkUIManagerNew()
-
-INIRENA$setData("ui-manager", manager)
-manager$insertActionGroup(agroup, 0)
-
-INIRENA$addAccelGroup(manager$getAccelGroup())
-
-uistr <- paste(
-  "<ui>",
-  "  <menubar name='MenuBar'>",
-  "    <menu action='FileMenu'>",
-  "      <menuitem action='Dir'/>",
-  "      <separator/>",
-  "      <menuitem action='Display'/>",
-  "      <menuitem action='Histogram'/>",
-  "      <separator/>",
-  "      <menuitem action='Quit'/>",
-  "    </menu>",
-
-  "    <menu action='AMCI'>",
-  "	        <menu action='CNAMCI'>",
-  "          <menuitem action='Sobhani_I'/>",
-  "          <menuitem action='Hawkins_I'/>",
-  "          <menuitem action='Chow_I'/>",
-  "          <menuitem action='Mishra_I'/>",
-  "         </menu>",
-  "	        <menuitem action='QAMCI'/>",
-  "    </menu>",
-
-  "    <menu action='AMCII'>",
-  "        <menuitem action='CNAMCII'/>",
-  "        <menuitem action='QAMCII'/>",
-  "        <menuitem action='BothAMCII'/>",
-  "    </menu>",
-
-  "    <menu action='AMCIII'>",
-  "        <menu action='CNAMCIII'>",
-  "          <menuitem action='Sobhani_III'/>",
-  "          <menuitem action='Hawkins_III'/>",
-  "          <menuitem action='Chow_III'/>",
-  "          <menuitem action='Mishra_III'/>",
-  "         </menu>",
-  "        <menuitem action='QAMCIII'/>",
-  "    </menu>",
-
-  "    <menu action='MISC'>",
-  "      <menuitem action='IaP'/>",
-  "      <menuitem action='Hawkins'/>",
-  "      <menuitem action='HawkinsP'/>",
-  "    </menu>",
-
-  "    <menu action='HelpMenu'>",
-  "      <menuitem action='Landuse'/>",
-  "      <menuitem action='HSG'/>",
-  "      <menuitem action='CNindex'/>",
-  "      <menuitem action='About'/>",
-  "    </menu>",
-  "  </menubar>",
-
-  "  <toolbar  name='ToolBar'>",
-  "    <toolitem action='Dir'/>",
-  "    <separator action='Sep1'/>",
-  "    <toolitem action='Display'/>",
-  "    <separator action='Sep2'/>",
-  "    <toolitem action='Histogram'/>",
-  "    <separator action='Sep3'/>",
-  "    <toolitem action='Quit'/>",
-  "    <separator action='Sep4'/>",
-  "  </toolbar>",
-  "</ui>", sep="\n")
-
-manager$addUiFromString(uistr)
-menubar <- manager$getWidget("/MenuBar")
-menubar$show()
-table$attach(menubar, 0, 1, 0, 1, yoptions = 0)
-
-bar <- manager$getWidget("/ToolBar")
-bar$show()
-table$attach(bar, 0, 1, 1, 2, yoptions = 0)
-
-veirusGUI()
-
-}

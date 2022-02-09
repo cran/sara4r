@@ -5,12 +5,13 @@ knitr::opts_chunk$set(
 )
 
 ## -----------------------------------------------------------------------------
-# Load the RGtk2 library
-library(RGtk2)
+# Load the tcltk package
+library(tcltk)
 
 
 ## -----------------------------------------------------------------------------
-# Load the following libraries.
+# Load the following packages.
+library(tcltk2)
 library(raster)
 library(rgdal)
 library(sp)
