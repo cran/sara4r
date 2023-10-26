@@ -1,10 +1,11 @@
 citHeader("To cite sara4r in publications please use:")
 
-citEntry(entry	= "Article",
+bibentry(
+  bibtype	= "Article",
   title 	= "Sara4r: an R graphical user interface (GUI) to estimate watershed surface runoff applying the NRCS – curve number method",
-  author 	= personList(as.person("R. Hernández-Guzmán"),
-			as.person("A. Ruiz-Luna"),
-			as.person("E. Mendoza")),
+  author 	= c(person(given ="Rafael", family = "Hernández-Guzmán"),
+			    person(given = "Arturo", family = "Ruiz-Luna"),
+			    person(given = "Eduardo", family = "Mendoza")),
   journal	= "Journal of Hydroinformatics",
   year 		= "2021",
   volume	= "23",
@@ -12,5 +13,9 @@ citEntry(entry	= "Article",
   pages		= "76-87",
 
   textVersion	=
-  paste("Hernández-Guzmán, R., Ruiz-Luna, A., and E. Mendoza (2021). Sara4r: an R graphical user interface (GUI) to estimate watershed surface runoff applying the NRCS – curve number method. Journal of Hydroinformatics.")
+  paste("Hernández-Guzmán R, Ruiz-Luna A, Mendoza E, (2021).",
+  "Sara4r: an R graphical user interface (GUI) to estimate watershed surface runoff applying the NRCS – curve number method",
+  "Journal of Hydroinformatics, 23, 76-87.",
+  "https://doi.org/10.2166/hydro.2020.087"),
+  encoding = "UTF-8"
 )

@@ -12,9 +12,7 @@ library(tcltk)
 ## -----------------------------------------------------------------------------
 # Load the following packages.
 library(tcltk2)
-library(raster)
-library(rgdal)
-library(sp)
+library(terra)
 library(sara4r)
 
 ## -----------------------------------------------------------------------------

@@ -1,12 +1,12 @@
-f1821c0fd53303f86447716d04fd39cd *DESCRIPTION
-8e7daa7c6836b662151dd031ec5385eb *NAMESPACE
-9bbd4a261647724f5a3a8a074ba5eddb *NEWS
-86be82aca65fb6163dee7f06e37e303e *R/sara4r.R
-47b1d8f4dd997a4d78ff78645ee1d88b *build/vignette.rds
-92bbfd1b0082b2838692525010a2a819 *inst/CITATION
-d69ac8c7c065f3738068fc06a81762ac *inst/doc/howto.R
-f16fd4aba91f3fae98b77b5727947504 *inst/doc/howto.Rmd
-348225dcd1aef1550f1c41867b393fe6 *inst/doc/howto.html
+958d98484a941fd56baccb3033ce772d *DESCRIPTION
+fc0c4a1f40d1115b4cc78ffb162c15e3 *NAMESPACE
+699373eaa6ab91352453f96fffcb5d1a *NEWS
+031bb36c3d35be8462e72f69fdb9590b *R/sara4r.R
+bfa7f2eb814836185d8ff1421eb8e97d *build/vignette.rds
+c250caa7edf7b98ec93f59ab71427b09 *inst/CITATION
+242fc968bb23eac2b3c19a6e8e774228 *inst/doc/howto.R
+ac66a427c32514bd1187a7c2278bccbb *inst/doc/howto.Rmd
+507635298f884fcf9bfe8d4c95d5694c *inst/doc/howto.html
 900f0742a797b305b3b8f51bc33e558e *inst/extdata/CNindexFile.csv
 5c72830eff44759df1771b1ba596a92f *inst/extdata/HowtoMake_CNindexFile.xlsx
 a6a9d83ec344f2d29f93c8bb28835ad9 *inst/extdata/hsg.tfw
@@ -16,4 +16,4 @@ a6a9d83ec344f2d29f93c8bb28835ad9 *inst/extdata/landuse.tfw
 a6a9d83ec344f2d29f93c8bb28835ad9 *inst/extdata/rainfall.tfw
 7db2bab43734b1b6cbf51327f06589ed *inst/extdata/rainfall.tif
 e198612b846562f5970e7c4a6b329da0 *man/sara4r.Rd
-f16fd4aba91f3fae98b77b5727947504 *vignettes/howto.Rmd
+ac66a427c32514bd1187a7c2278bccbb *vignettes/howto.Rmd

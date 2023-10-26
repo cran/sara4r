@@ -1,4 +1,4 @@
-  sara4r <- function() {
+sara4r <- function() {
 
   land_var <- tclVar("")
   hsg_var <- tclVar("")
@@ -29,15 +29,10 @@
       return(data.frame())
     tclvalue(land_var) <- lulc
 
-    landuse_plot <- raster(lulc)
-    land_rat <- ratify(landuse_plot)
-    land_rat@data@attributes
-    land_types <- land_rat@data@attributes[[1]]
-    cols <- topo.colors(nrow(land_types))
-
+    land_fact <- as.factor(rast(lulc))
+    cols <- topo.colors(nrow(land_fact))
     dev.new()
-    image(land_rat, col=cols, main="Land use and land cover", xlab="Longitude", ylab="Latitude")
-    legend("bottomleft", legend = land_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(land_fact, col=cols, main="Land use and land cover", xlab="Easting", ylab="Northing")
   }
 
   hsg <- function()
@@ -48,15 +43,10 @@
       return(data.frame())
     tclvalue(hsg_var) <- soils
 
-    hsg_plot <- raster(soils)
-    hsg_rat <- ratify(hsg_plot)
-    hsg_rat@data@attributes
-    hsg_types <- hsg_rat@data@attributes[[1]]
-    cols <- rainbow(nrow(hsg_types))
-    cols[1] <- "darkgreen"
+    hsg_fact <- as.factor(rast(soils))
+    cols <-topo.colors(nrow(hsg_fact))
     dev.new()
-    image(hsg_rat, col=cols, main="Hydrologic Soil Groups", xlab="Longitude", ylab="Latitude")
-    legend("bottomleft", legend = hsg_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(hsg_fact, col=cols, main="Hydrologic Soil Groups", xlab="Easting", ylab="Northing")
   }
 
   indexfile <- function()
@@ -76,16 +66,10 @@
       return(data.frame())
     tclvalue(cn_var)<- curvenumber_file
 
-    cn_plot <- raster(curvenumber_file)
-    cn_rat <- ratify(cn_plot)
-    cn_rat@data@attributes
-    cn_types <- cn_rat@data@attributes[[1]]
-    cols <- rainbow(nrow(cn_types))
-    cols[1] <- "darkgreen"
+    cn_fact <- as.factor(rast(curvenumber_file))
+    cols <- rainbow(nrow(cn_fact))
     dev.new()
-    image(cn_rat, col=cols, main="Curve number classes", xlab="Longitude", ylab="Latitude")
-
-    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(cn_fact, col=cols, main="Curve number classes", xlab="Easting", ylab="Northing")
 
   }
 
@@ -97,15 +81,10 @@
       return(data.frame())
     tclvalue(landsoil_var) <- ls_file
 
-    landsoil_plot <- raster(ls_file)
-
-    landsoil_rat <- ratify(landsoil_plot)
-    landsoil_rat@data@attributes
-    landsoil_types <- landsoil_rat@data@attributes[[1]]
-    cols <- topo.colors(nrow(landsoil_types))
+    landsoil_fact <- as.factor(rast(ls_file))
+    cols <- topo.colors(nrow(landsoil_fact))
     dev.new()
-    image(landsoil_rat, col=cols, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-    legend("bottomleft", legend = landsoil_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(landsoil_fact, col=cols, main= "Landsoil classes", xlab="Easting", ylab="Northing")
 
   }
 
@@ -117,9 +96,9 @@
       return(data.frame())
     tclvalue(pimage_var) <- name
 
-    rainfall_plot <- raster(name)
+    rainfall_plot <- rast(name)
     dev.new()
-    image(rainfall_plot, main= "Precipitation", xlab="Longitude", ylab="Latitude")
+    plot(rainfall_plot, main= "Precipitation", xlab="Easting", ylab="Northing")
 
   }
 
@@ -128,39 +107,30 @@
     hsg_file <- tclvalue(hsg_var)
     index_file <- tclvalue(index_var)
 
-    landuse <- raster(landuse_file)
-    soil <- raster(hsg_file)
+    landuse <- rast(landuse_file)
+    soil <- rast(hsg_file)
 
     landsoil <- (landuse + soil)
 
-    landsoil_rat <- ratify(landsoil)
-
-    landsoil_rat@data@attributes
-    landsoil_types <- landsoil_rat@data@attributes[[1]]
-    cols <- topo.colors(nrow(landsoil_types))
+    landsoil_fact <- as.factor(landsoil)
+    cols <- topo.colors(nrow(landsoil_fact))
     dev.new()
-    image(landsoil_rat, col=cols, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
-    legend("bottomleft", legend = landsoil_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(landsoil_fact, col=cols, main= "Landsoil classes", xlab="Easting", ylab="Northing")
 
-    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
+    writeRaster(landsoil, filename = "./landsoil.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
-    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
+    cn <- classify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-    cn_rat <- ratify(cn)
+    cn_fact <- as.factor(cn)
 
-    cn_rat@data@attributes
-    cn_types <- cn_rat@data@attributes[[1]]
-    cols <- rainbow(nrow(cn_types))
-    cols[1] <- "darkgreen"
+    cols <- rainbow(nrow(cn_fact))
     dev.new()
-    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-
-    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(cn_fact, col=cols, main="Curve numbers AMC II",  xlab="Easting", ylab="Northing")
 
     path <- getwd()
-    tkmessageBox(message=paste("landsoil. tif and cn_amc_ii.tif were stored in ", path, ""))
+    tkmessageBox(message=paste("landsoil.tif and cn_amc_ii.tif were stored in ", path, ""))
 
   }
 
@@ -169,44 +139,37 @@
     cn_file <- tclvalue(cn_var)
     landsoil_file <- tclvalue(landsoil_var)
 
-    cn <- raster(cn_file)
-    landsoil <- raster(landsoil_file)
+    cn <- rast(cn_file)
+    landsoil <- rast(landsoil_file)
     P <- as.numeric(tclvalue(rainfall_var))
 
     S <- ((1000/cn) - 10)
     Ia <- (0.2*S)
 
-    msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
+    msc <- classify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
 
     Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
 
     q_depth <- (Q * msc)
 
     dev.new()
-    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
+    plot(q_depth, col = rainbow(100), main="Runoff depth (inch)",  xlab="Easting", ylab="Northing")
 
     resolution <- as.numeric(tclvalue(area_var))
     area <- (resolution * resolution)
 
     runoff <- round((q_depth * 0.0254 * area), 2)
 
-    runoff_rat <- ratify(runoff)
-
-    runoff_rat@data@attributes
-    q_types <- runoff_rat@data@attributes [[1]]
-    cols <- rainbow(nrow(q_types))
-    cols[1] <- "yellow"
     dev.new()
-    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
+    plot(runoff, col = topo.colors(100), main="Runoff volume in cubic meters",  xlab="Easting", ylab="Northing")
 
-    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
     add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
-    writeRaster(runoff, filename = paste("./Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
+    writeRaster(runoff, filename = paste("./Runoff_m3",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     path <- getwd()
     datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
+    vol <- round((global(runoff, 'sum', na.rm=TRUE)), 2)
 
     write.table(paste("Total runoff volume of the study area = ", vol, "m^3 \n\n The parameters used were: \n Precipitation = ", P, "inches \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
                 file = paste(path, "/Runoff_Vol", datetime, '.txt', sep = ""),
@@ -222,66 +185,55 @@
     hsg_file <- tclvalue(hsg_var)
     index_file <- tclvalue(index_var)
 
-    landuse <- raster(landuse_file)
-    soil <- raster(hsg_file)
+    landuse <- rast(landuse_file)
+    soil <- rast(hsg_file)
 
     landsoil <- (landuse + soil)
+    landsoil_fact <- as.factor(landsoil)
+    cols <- topo.colors(nrow(landsoil_fact))
     dev.new()
-    image(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
+    plot(landsoil_fact, col=cols, main= "Landsoil classes", xlab="Easting", ylab="Northing")
 
-    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
+    writeRaster(landsoil, filename = "./landsoil.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
-    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
+    cn <- classify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-    cn_rat <- ratify(cn)
-    cn_rat
-    cn_rat@data@attributes
-    cn_types <- cn_rat@data@attributes[[1]]
-    cols <- rainbow(nrow(cn_types))
-    cols[1] <- "darkgreen"
+    cn_fact <- as.factor(cn)
+    cols <- rainbow(nrow(cn_fact))
     dev.new()
-    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-
-    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(cn_fact, col=cols, main="Curve numbers AMC II",  xlab="Easting", ylab="Northing")
 
     P <- as.numeric(tclvalue(rainfall_var))
 
     S <- ((1000/cn) - 10)
     Ia <- (0.2*S)
 
-    msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
+    msc <- classify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
 
     Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
 
     q_depth <- (Q * msc)
 
     dev.new()
-    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
+    plot(q_depth, col = rainbow(100), main="Runoff depth (inch)",  xlab="Easting", ylab="Northing")
 
     resolution <- as.numeric(tclvalue(area_var))
     area <- (resolution * resolution)
 
     runoff <- round((q_depth * 0.0254 * area), 2)
 
-    runoff_rat <- ratify(runoff)
-    runoff_rat
-    runoff_rat@data@attributes
-    q_types <- runoff_rat@data@attributes [[1]]
-    cols <- rainbow(nrow(q_types))
-    cols[1] <- "yellow"
     dev.new()
-    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
+    plot(runoff, col = topo.colors(100), main="Runoff volume in cubic meters",  xlab="Easting", ylab="Northing")
 
-    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
     add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
-    writeRaster(runoff, filename = paste("./USDA_Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
+    writeRaster(runoff, filename = paste("./USDA_Runoff_m3",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     path <- getwd()
     datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
+    vol <- round((global(runoff, 'sum', na.rm=TRUE)), 2)
 
     write.table(paste("Total runoff volume of the study area = ", vol, "m^3  \n\n The parameters used were: \n Precipitation = ", P, "inches \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
                 file = paste(path, "/Runoff_Vol", datetime, '.txt', sep = ""),
@@ -290,7 +242,6 @@
                                "the working folder ", path, " \n\n",
                                "Total runoff volume of the study area = ", vol, "m^3"))
 
-
   }
 
   usdaP_calc <- function() {
@@ -298,45 +249,38 @@
     landsoil_file <- tclvalue(landsoil_var)
     rainfall_file <- tclvalue(pimage_var)
 
-    cn <- raster(cn_file)
-    landsoil <- raster(landsoil_file)
-    P <- raster(rainfall_file)
+    cn <- rast(cn_file)
+    landsoil <- rast(landsoil_file)
+    P <- rast(rainfall_file)
 
     S <- ((1000/cn) - 10)
     Ia <- (0.2*S)
     PIa <- (P-Ia)
 
-    msc <- reclassify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
+    msc <- classify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
 
     Q <- ((P-(0.2*S))^2)/(P+(0.8*S))
 
     q_depth <- (Q * msc)
 
     dev.new()
-    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
+    plot(q_depth, col = rainbow(100), main="Runoff depth (inch)",  xlab="Easting", ylab="Northing") # Here
 
     resolution <- as.numeric(tclvalue(area_var))
     area <- (resolution * resolution)
 
     runoff <- round((q_depth * 0.0254 * area), 2)
 
-    runoff_rat <- ratify(runoff)
-    runoff_rat
-    runoff_rat@data@attributes
-    q_types <- runoff_rat@data@attributes [[1]]
-    cols <- rainbow(nrow(q_types))
-    cols[1] <- "yellow"
     dev.new()
-    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
+    plot(runoff, col = topo.colors(100), main="Runoff volume in cubic meters",  xlab="Easting", ylab="Northing")
 
-    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
     add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
-    writeRaster(runoff, filename = paste("./Runoff_m3_Pmap",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(q_depth, filename = paste("./Q_depth_inch",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
+    writeRaster(runoff, filename = paste("./Runoff_m3_Pmap",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     path <- getwd()
     datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
+    vol <- round((global(runoff, 'sum', na.rm=TRUE)), 2)
 
     write.table(paste("Total runoff volume of the study area = ", vol, "m^3 \n\n The parameters used were: \n Curve number map: ", cn_file, "\n Landsoil file: ", landsoil_file, "\n Precipitation = ", rainfall_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
                 file = paste(path, "/Runoff_Vol_Pmap", datetime, '.txt', sep = ""),
@@ -352,29 +296,26 @@
     hsg_file <- tclvalue(hsg_var)
     index_file <- tclvalue(index_var)
 
-    landuse <- raster(landuse_file)
-    soil <- raster(hsg_file)
+    landuse <- rast(landuse_file)
+    soil <- rast(hsg_file)
 
     landsoil <- (landuse + soil)
+    landsoil_fact <- as.factor(landsoil)
+    cols <- topo.colors(nrow(landsoil_fact))
     dev.new()
-    image(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
+    plot(landsoil_fact, col=cols, main= "Landsoil classes", xlab="Easting", ylab="Northing")
 
-    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
+    writeRaster(landsoil, filename = "./landsoil.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
-    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
+    cn <- classify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-    cn_rat <- ratify(cn)
-    cn_rat
-    cn_rat@data@attributes
-    cn_types <- cn_rat@data@attributes[[1]]
-    cols <- rainbow(nrow(cn_types))
-    cols[1] <- "darkgreen"
+    cn_fact <- as.factor(cn)
+    cols <- rainbow(nrow(cn_fact))
+
     dev.new()
-    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
-
-    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+    plot(cn_fact, col=cols, main="Curve numbers AMC II",  xlab="Easting", ylab="Northing")
 
     P <- as.numeric(tclvalue(rainfall_var))
 
@@ -382,37 +323,30 @@
     S05 <- (1.33*(S^1.15))
     Ia <- (0.05*S05)
 
-    msc <- reclassify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
+    msc <- classify(Ia, c(-Inf, P, 1, P, Inf, 0), include.lowest=FALSE, right=TRUE)
 
     Q <- ((P-(0.05*S05))^2)/(P+(0.95*S05))
 
     q_depth <- (Q * msc)
 
     dev.new()
-    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
+    plot(q_depth, col = rainbow(100), main="Runoff depth (inch)",  xlab="Easting", ylab="Northing")
 
     resolution <- as.numeric(tclvalue(area_var))
     area <- (resolution * resolution)
 
     runoff <- round((q_depth * 0.0254 * area), 2)
 
-    runoff_rat <- ratify(runoff)
-    runoff_rat
-    runoff_rat@data@attributes
-    q_types <- runoff_rat@data@attributes [[1]]
-    cols <- rainbow(nrow(q_types))
-    cols[1] <- "yellow"
     dev.new()
-    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
+    plot(runoff, col = topo.colors(100), main="Runoff volume in cubic meters",  xlab="Easting", ylab="Northing")
 
-    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
     add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    writeRaster(q_depth, filename = paste("./Hawkins_Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
-    writeRaster(runoff, filename = paste("./Hawkins_Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(q_depth, filename = paste("./Hawkins_Q_depth_inch",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
+    writeRaster(runoff, filename = paste("./Hawkins_Runoff_m3",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     path <- getwd()
     datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
+    vol <- round((global(runoff, 'sum', na.rm=TRUE)), 2)
 
     write.table(paste("Total runoff volume with the modified NRCS-CN method = ", vol, "m^3  \n\n The parameters used were: \n Precipitation = ", P, "inches \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
                 file = paste(path, "/Hawkins_Runoff_Vol", datetime, '.txt', sep = ""),
@@ -429,31 +363,27 @@
     index_file <- tclvalue(index_var)
     rainfall_file <- tclvalue(pimage_var)
 
-    landuse <- raster(landuse_file)
-    soil <- raster(hsg_file)
+    landuse <- rast(landuse_file)
+    soil <- rast(hsg_file)
 
     landsoil <- (landuse + soil)
+    landsoil_fact <- as.factor(landsoil)
+    cols <- topo.colors(nrow(landsoil_fact))
     dev.new()
-    image(landsoil, main= "Landsoil classes", xlab="Longitude", ylab="Latitude")
+    plot(landsoil_fact, col=cols, main= "Landsoil classes", xlab="Easting", ylab="Northing")
 
-    writeRaster(landsoil, filename = "./landsoil", format="GTiff", overwrite=TRUE)
+    writeRaster(landsoil, filename = "./landsoil.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     index <- read.csv(tclvalue(index_var), header = FALSE, sep = ",")
-    cn <- reclassify(landsoil, index, include.lowest=TRUE, right=FALSE)
-    writeRaster(cn, filename = "./cn_amc_ii", format="GTiff", overwrite=TRUE)
+    cn <- classify(landsoil, index, include.lowest=TRUE, right=FALSE)
+    writeRaster(cn, filename = "./cn_amc_ii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-    cn_rat <- ratify(cn)
-    cn_rat
-    cn_rat@data@attributes
-    cn_types <- cn_rat@data@attributes[[1]]
-    cols <- rainbow(nrow(cn_types))
-    cols[1] <- "darkgreen"
+    cn_fact <- as.factor(cn)
+    cols <- rainbow(nrow(cn_fact))
     dev.new()
-    image(cn_rat, col=cols, main="Curve numbers AMC II",  xlab="Longitude", ylab="Latitude")
+    plot(cn_fact, col=cols, main="Curve numbers AMC II",  xlab="Easting", ylab="Northing")
 
-    legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
-
-    P <- raster(rainfall_file)
+    P <- rast(rainfall_file)
 
     S <- ((1000/cn) - 10)
     S05 <- (1.33*(S^1.15))
@@ -463,37 +393,30 @@
     PIa <- (P-Ia)
 
 
-    msc <- reclassify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
+    msc <- classify(PIa, c(-Inf, 0, 0, 0, Inf, 1), include.lowest=FALSE, right=TRUE)
 
     Q <- ((P-(0.05*S05))^2)/(P+(0.95*S05))
 
     q_depth <- (Q * msc)
 
     dev.new()
-    image(q_depth, main="Runoff depth (inch)",  xlab="Longitude", ylab="Latitude")
+    plot(q_depth, col = rainbow(100), main="Runoff depth (inch)",  xlab="Easting", ylab="Northing")
 
     resolution <- as.numeric(tclvalue(area_var))
     area <- (resolution * resolution)
 
     runoff <- round((q_depth * 0.0254 * area), 2)
 
-    runoff_rat <- ratify(runoff)
-    runoff_rat
-    runoff_rat@data@attributes
-    q_types <- runoff_rat@data@attributes [[1]]
-    cols <- rainbow(nrow(q_types))
-    cols[1] <- "yellow"
     dev.new()
-    image(runoff_rat, col=cols, main="Runoff volume in cubic meters",  xlab="Longitude", ylab="Latitude")
+    plot(runoff, col = topo.colors(100), main="Runoff volume in cubic meters",  xlab="Easting", ylab="Northing")
 
-    legend("bottomleft", legend = q_types$ID, fill = cols, bty="n", cex = 0.8)
     add_time <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    writeRaster(q_depth, filename = paste("./HawkinsP_Q_depth_inch",add_time), format="GTiff", overwrite=TRUE)
-    writeRaster(runoff, filename = paste("./HawkinsP_Runoff_m3",add_time), format="GTiff", overwrite=TRUE)
+    writeRaster(q_depth, filename = paste("./HawkinsP_Q_depth_inch",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
+    writeRaster(runoff, filename = paste("./HawkinsP_Runoff_m3",add_time,".tif"), overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
     path <- getwd()
     datetime <- format(Sys.time(),'_%Y%m%d_%H%M%S')
-    vol <- round((cellStats(runoff, 'sum', na.rm=TRUE, asSample=TRUE)), 2)
+    vol <- round((global(runoff, 'sum', na.rm=TRUE)), 2)
 
     write.table(paste("Total runoff volume with the modified NRCS-CN method = ", vol, "m^3  \n\n The parameters used were: \n Landuse File: ", landuse_file, "\n HSG File: ", hsg_file, "\n CN index database: ", index_file, "\n Precipitation = ", P, "\n Pixel size = ", resolution, "meters\n\n sara4r"),
                 file = paste(path, "/HawkinsP_Runoff_Vol", datetime, '.txt', sep = ""),
@@ -507,7 +430,7 @@
   "about" <- function(show, history)
   {
     about_win <- tktoplevel()
-    tkwm.title(about_win, "sara4r v0.0.9")
+    tkwm.title(about_win, "sara4r v0.1.0")
 
     TFrame <- tkframe(about_win, relief= "groove")
     tkgrid(tklabel(TFrame,text= "Intentionally written in Spanish", foreground= "blue"))
@@ -520,7 +443,7 @@
     tkgrid(tklabel(about_win, text = "    "))
     tkgrid(tklabel(about_win, text = " Sara", font= "Times 18", foreground= "blue"))
     tkgrid(tklabel(about_win, text = "    "))
-    tkgrid(tklabel(about_win, text = " http://hydro-geomatic-lab.com/  "))
+    tkgrid(tklabel(about_win, text = " https://hydro-geomatic-lab.com/  "))
     tkgrid(tklabel(about_win, text = " Veirus Software  "), sticky = "e")
     tkgrid(tklabel(about_win, text = "    "))
 
@@ -529,7 +452,7 @@
   "set_work" <- function(show, history)
   {
     set_win <- tktoplevel()
-    tkwm.title(set_win, "sara4r v0.0.9 - Set Working Directory")
+    tkwm.title(set_win, "sara4r v0.1.0 - Set Working Directory")
 
     dfvar <- tclVar("")
 
@@ -586,7 +509,7 @@
   {
 
     cnii_win <- tktoplevel()
-    tkwm.title(cnii_win, "sara4r v0.0.9 - Get the Curve Number map for the AMC II")
+    tkwm.title(cnii_win, "sara4r v0.1.0 - Get the Curve Number map for the AMC II")
 
     tclvalue(land_var) <- ""
     tclvalue(hsg_var) <- ""
@@ -666,7 +589,7 @@
   "cni" <- function(show, history)
   {
     cni_win <- tktoplevel()
-    tkwm.title(cni_win, "sara4r v0.0.9 - Get the Curve Number map for the AMC I")
+    tkwm.title(cni_win, "sara4r v0.1.0 - Get the Curve Number map for the AMC I")
 
     tclvalue(cn1_var)  <- ""
 
@@ -683,36 +606,25 @@
         return(data.frame())
       tclvalue(cn1_var)<- cnii_file
 
-      cn_plot <- raster(tclvalue(cn1_var))
-       cn_rat <- ratify(cn_plot)
-       cn_rat
-       cn_rat@data@attributes
-       cn_types <- cn_rat@data@attributes[[1]]
-       cols <- rainbow(nrow(cn_types))
-       cols[1] <- "darkgreen"
+      cn_plot <- rast(tclvalue(cn1_var))
+       cn_fact <- as.factor(cn_plot)
+       cols <- rainbow(nrow(cn_fact))
       dev.new()
-      image(cn_rat, col=cols, main="Curve number classes", xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cn_fact, col=cols, main="Curve number classes", xlab="Easting", ylab="Northing")
 
     }
 
     sob_cni <- function()
     {
-      cn <- raster(tclvalue(cn1_var))
+      cn <- rast(tclvalue(cn1_var))
 
       cni <- round((cn/(2.334-(0.01334*cn))))
-      writeRaster(cni, filename = "./cn_sobhani_amci", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_sobhani_amci.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC I (Sobhani)",  xlab="Longitude", ylab="Latitude")
-
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC I (Sobhani)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_sobhani_amci.tif was stored in ", path, ""))
@@ -721,20 +633,15 @@
 
     hwk_cni <- function()
     {
-      cn <- raster(tclvalue(cn1_var))
+      cn <- rast(tclvalue(cn1_var))
 
       cni <- round((cn/(2.281-(0.01281*cn))))
-      writeRaster(cni, filename = "./cn_hawkins_amci", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_hawkins_amci.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC I (Hawkins)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC I (Hawkins)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_hawkins_amci.tif was stored in ", path, ""))
@@ -743,20 +650,15 @@
 
     chow_cni <- function()
     {
-      cn <- raster(tclvalue(cn1_var))
+      cn <- rast(tclvalue(cn1_var))
 
       cni <- round((4.2*cn/(10-(0.058*cn))))
-      writeRaster(cni, filename = "./cn_chow_amci", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_chow_amci.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC I (Chow)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC I (Chow)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_chow_amci.tif was stored in ", path, ""))
@@ -766,20 +668,15 @@
     mish_cni <- function()
     {
 
-      cn <- raster(tclvalue(cn1_var))
+      cn <- rast(tclvalue(cn1_var))
 
       cni <- round((cn/(2.2754-(0.012754*cn))))
-      writeRaster(cni, filename = "./cn_mishra_amci", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_mishra_amci.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC I (Mishra)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC I (Mishra)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_mishra_amci.tif was stored in ", path, ""))
@@ -828,7 +725,7 @@
   "cniii" <- function(show, history)
   {
     cniii_win <- tktoplevel()
-    tkwm.title(cniii_win, "sara4r v0.0.9 - Get the Curve Number map for the AMC III")
+    tkwm.title(cniii_win, "sara4r v0.1.0 - Get the Curve Number map for the AMC III")
 
     tclvalue(cn3_var) <- ""
 
@@ -846,35 +743,25 @@
         return(data.frame())
       tclvalue(cn3_var) <- cnii_file
 
-      cn_plot <- raster(tclvalue(cn3_var))
-      cn_rat <- ratify(cn_plot)
-      cn_rat
-      cn_rat@data@attributes
-      cn_types <- cn_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cn_types))
-      cols[1] <- "darkgreen"
+      cn_plot <- rast(tclvalue(cn3_var))
+      cn_fact <- as.factor(cn_plot)
+      cols <- rainbow(nrow(cn_fact))
       dev.new()
-      image(cn_rat, col=cols, main="Curve number classes", xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cn_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cn_fact, col=cols, main="Curve number classes", xlab="Easting", ylab="Northing")
 
     }
-
+##
     sob_cniii <- function()
     {
-      cn <- raster(tclvalue(cn3_var))
+      cn <- rast(tclvalue(cn3_var))
 
       cni <- round((cn/(0.4036+(0.005964*cn))))
-      writeRaster(cni, filename = "./cn_sobhani_amciii", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_sobhani_amciii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC III (Sobhani)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC III (Sobhani)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_sobhani_amciii.tif was stored in ", path, ""))
@@ -883,20 +770,15 @@
 
     hwk_cniii <- function()
     {
-      cn <- raster(tclvalue(cn3_var))
+      cn <- rast(tclvalue(cn3_var))
 
       cni <- round((cn/(0.427+(0.00573*cn))))
-      writeRaster(cni, filename = "./cn_hawkins_amciii", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_hawkins_amciii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC III (Hawkins)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC III (Hawkins)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_hawkins_amciii.tif was stored in ", path, ""))
@@ -905,20 +787,15 @@
 
     chow_cniii <- function()
     {
-      cn <- raster(tclvalue(cn3_var))
+      cn <- rast(tclvalue(cn3_var))
 
       cni <- round((23*cn/(10+(0.13*cn))))
-      writeRaster(cni, filename = "./cn_chow_amciii", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_chow_amciii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC III (Chow)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC III (Chow)",  xlab="Easting", ylab="Northing")
 
       path <- getwd()
       tkmessageBox(message=paste("cn_chow_amciii.tif was stored in ", path, ""))
@@ -927,22 +804,17 @@
 
     mish_cniii <- function()
     {
-      cn <- raster(tclvalue(cn3_var))
+      cn <- rast(tclvalue(cn3_var))
 
       cni <- round((cn/(0.43+(0.0057*cn))))
-      writeRaster(cni, filename = "./cn_mishra_amciii", format="GTiff", overwrite=TRUE)
+      writeRaster(cni, filename = "./cn_mishra_amciii.tif", overwrite=T, gdal=c("COMPRESS=LZW", "TFW=YES"), datatype='FLT4S')
 
-      cni_rat <- ratify(cni)
-      cni_rat
-      cni_rat@data@attributes
-      cni_types <- cni_rat@data@attributes[[1]]
-      cols <- rainbow(nrow(cni_types))
-      cols[1] <- "darkgreen"
+      cni_fact <- as.factor(cni)
+      cols <- rainbow(nrow(cni_fact))
       dev.new()
-      image(cni_rat, col=cols, main="Curve numbers AMC III (Mishra)",  xlab="Longitude", ylab="Latitude")
-      legend("bottomleft", legend = cni_types$ID, fill = cols, bty="n", cex = 0.8)
+      plot(cni_fact, col=cols, main="Curve numbers AMC III (Mishra)",  xlab="Easting", ylab="Northing")
 
-      path <- getwd()  #Get Working Dir
+      path <- getwd()
       tkmessageBox(message=paste("cn_mishra_amciii.tif was stored in ", path, ""))
 
     }
@@ -988,7 +860,7 @@
   "q_volume" <- function(show, history)
   {
     qvol_win <- tktoplevel()
-    tkwm.title(qvol_win, "sara4r v0.0.9 - Get Q-depth and runoff volume")
+    tkwm.title(qvol_win, "sara4r v0.1.0 - Get Q-depth and runoff volume")
 
     tclvalue(cn_var) <- ""
     tclvalue(landsoil_var) <- ""
@@ -1072,7 +944,7 @@
   "usda" <- function(show, history)
   {
     usda_win <- tktoplevel()
-    tkwm.title(usda_win, "sara4r v0.0.9 - Get CN and Runoff volume for the AMC II")
+    tkwm.title(usda_win, "sara4r v0.1.0 - Get CN and Runoff volume for the AMC II")
 
     tclvalue(land_var) <- ""
     tclvalue(hsg_var) <- ""
@@ -1186,7 +1058,7 @@
   "usdaP" <- function(show, history)
   {
     usdap_win <- tktoplevel()
-    tkwm.title(usdap_win, "sara4r v0.0.9 - Get CN and Runoff volume using a Precipitation image")
+    tkwm.title(usdap_win, "sara4r v0.1.0 - Get CN and Runoff volume using a Precipitation image")
 
     tclvalue(cn_var) <- ""
     tclvalue(landsoil_var) <- ""
@@ -1292,7 +1164,7 @@
   "hawkins" <- function(show, history)
   {
     hawkins_win <- tktoplevel()
-    tkwm.title(hawkins_win, "sara4r v0.0.9 - Get CN and Runoff volume with the Modified NRCS-CN method")
+    tkwm.title(hawkins_win, "sara4r v0.1.0 - Get CN and Runoff volume with the Modified NRCS-CN method")
 
     tclvalue(land_var) <- ""
     tclvalue(hsg_var) <- ""
@@ -1406,7 +1278,7 @@
   "hawkinsP" <- function(show, history)
   {
     hawkinsp_win <- tktoplevel()
-    tkwm.title(hawkinsp_win, "sara4r v0.0.9 - Get CN and Runoff volume with the Modified NRCS-CN method")
+    tkwm.title(hawkinsp_win, "sara4r v0.1.0 - Get CN and Runoff volume with the Modified NRCS-CN method")
 
     tclvalue(land_var) <- ""
     tclvalue(hsg_var) <- ""
@@ -1524,7 +1396,7 @@
   }
 
   runoff_win <- tktoplevel()
-  tktitle(runoff_win) <- "sara4r v0.0.9"
+  tktitle(runoff_win) <- "sara4r v0.1.0"
 
   menu_frame <- tkframe(runoff_win, relief= "groove")
   btn.dir <- tk2button(menu_frame, text = " Set working dir ",  default = "active", command = set_work)

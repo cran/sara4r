@@ -1,5 +1,5 @@
 exportPattern("^[[:alpha:]]+")
-import("tcltk", "raster", "rgdal","sp")
+import("tcltk", "terra")
 
 importFrom("tcltk",
            "tclVar",
@@ -19,20 +19,11 @@ importFrom("tcltk",
 importFrom("tcltk2",
            "tk2button",
            "tk2entry")
-importFrom("raster",
-           "cellStats",
-           "image",
-           "raster",
-           "ratify",
-           "reclassify",
-           "writeRaster",
-           "plot")
-importFrom("raster",
-           "cellStats",
-           "image",
-           "raster",
-           "ratify",
-           "reclassify",
+importFrom("terra",
+           "global",
+           "rast",
+           "as.factor",
+           "classify",
            "writeRaster",
            "plot")
 importFrom("grDevices",

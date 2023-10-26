@@ -25,12 +25,12 @@ knitr::opts_chunk$set(
 
 ## Introduction {#intro}
 
-[`sara4r`](http://hydro-geomatic-lab.com/sara4r.html) is an easy way to calculate the rainfall-runoff relation using the Natural Resources Conservation Service - Curve Number method (NRCS-CN method) but includes modifications by Hawkins et al., (2002) about the Initial Abstraction. This graphical user interface follows the programming logic of a previously published software [CN-Idris, Hernández-Guzmán et al., 2011 - CN-Idris: An Idrisi tool for generating curve number maps and estimating direct runoff. Environmental Modelling & Software, 26(12), 1764-1766](https://doi.org/10.1016/j.envsoft.2011.07.006), a raster-based GIS tool that outputs runoff estimates from Land use/land cover and hydrologic soil group maps.
-This package is under development at the Institute about Natural Resources Research (INIRENA) from the Universidad Michoacana de San Nicolás de Hidalgo and represents a collaborative effort between the [Hydro-Geomatic Lab](http://hydro-geomatic-lab.com/) (INIRENA) with the Environmental Management Lab (CIAD, A.C.).
+[`sara4r`](https://hydro-geomatic-lab.com/sara4r.html) is an easy way to calculate the rainfall-runoff relation using the Natural Resources Conservation Service - Curve Number method (NRCS-CN method) but includes modifications by Hawkins et al., (2002) about the Initial Abstraction. This graphical user interface follows the programming logic of a previously published software [CN-Idris, Hernández-Guzmán et al., 2011 - CN-Idris: An Idrisi tool for generating curve number maps and estimating direct runoff. Environmental Modelling & Software, 26(12), 1764-1766](https://doi.org/10.1016/j.envsoft.2011.07.006), a raster-based GIS tool that outputs runoff estimates from Land use/land cover and hydrologic soil group maps.
+This package is under development at the Institute about Natural Resources Research (INIRENA) from the Universidad Michoacana de San Nicolás de Hidalgo and represents a collaborative effort between the [Hydro-Geomatic Lab](https://hydro-geomatic-lab.com/) (INIRENA) with the Environmental Management Lab (CIAD, A.C.).
 
 ## How to install {#install}
 
-`sara4r` package is a Graphical User Interface developed in tcltk and depends on other libraries to run (raster, sp, rgdal). Thus, to make available `sara4r` in the R environment you must install `tcltk2` first, then the `raster`, `sp` and `rgdal` packages.
+`sara4r` package is a Graphical User Interface developed in tcltk and depends on other packages to run (terra). Thus, to make available `sara4r` in the R environment you must install `tcltk2` first, then the `terra` package.
 
 ### First time
 
@@ -46,9 +46,7 @@ Load required packages.
 ```{r}
 # Load the following packages.
 library(tcltk2)
-library(raster)
-library(rgdal)
-library(sp)
+library(terra)
 library(sara4r)
 ```
 
